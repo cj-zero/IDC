@@ -25,15 +25,15 @@ namespace OpenAuth.App.Staff
                         from c in bc.DefaultIfEmpty()
                         join d in UnitWork.Find<base_post>(null) on b.post_id equals d.post_id into bd
                         from d in bd.DefaultIfEmpty()
-                        select new { StaffName = a.user_nm, LogInName = a.log_nm, OrgName = c.dep_nm, IsDimission = b.out_date.ToString()=="0000-00-00"?false:true,PositionName= d.post_nm,UpdateTime= b.upd_dt};
+                        select new { StaffName = a.user_nm, LogInName = a.log_nm, OrgName = c.dep_nm, IsDimission = b.out_date.ToString() == "0000-00-00" ? false : true, PositionName = d.post_nm, UpdateTime = b.upd_dt };
             query = query.WhereIf(!string.IsNullOrWhiteSpace(req.StaffName), u => u.StaffName.Contains(req.StaffName))
                  .WhereIf(!string.IsNullOrWhiteSpace(req.StartTime), q => q.UpdateTime > DateTime.Parse(req.StartTime))
                 .WhereIf(!string.IsNullOrWhiteSpace(req.EndTime), q => q.UpdateTime < DateTime.Parse(req.EndTime).AddDays(1));
-            
+
             result.data = query.Skip((req.page - 1) * req.limit)
                 .Take(req.limit).ToList();
             result.count = query.Count();
-            
+
             return result;
         }
 

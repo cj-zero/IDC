@@ -36,7 +36,8 @@ namespace OpenAuth.App.Customer
             }
 
             var CardList= query.Select(c=>new { 
-                c.CardCode
+                c.CardCode,
+                UpdateTime=c.upd_dt
             }).ToList();
             result.data = CardList
                 .Skip((req.page - 1) * req.limit)
