@@ -1,6 +1,8 @@
 ﻿using Dapper;
+using IDC.Application.Basics;
 using IDC.Application.Material.Request;
 using IDC.Application.Material.Response;
+using IDC.Application.SSO;
 using IDC.Infrastructure.Returned;
 using IDC.Repository.Dapper;
 using IDC.Repository.Entities.NsapBone;
@@ -12,12 +14,10 @@ using System.Threading.Tasks;
 
 namespace IDC.Application.Material
 {
-    public class MaterialApp
+    public class MaterialApp:BaseApp
     {
-        private readonly IRepositoryBase _repositoryBase;
-        public MaterialApp(IRepositoryBase repositoryBase)
+        public MaterialApp(IRepositoryBase repositoryBase, IAuth auth) : base(auth, repositoryBase)
         {
-            _repositoryBase = repositoryBase;
         }
         public async Task<TableData> GetMaterialList(QueryMaterialListReq req)
         {

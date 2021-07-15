@@ -1,5 +1,7 @@
 ﻿using Dapper;
+using IDC.Application.Basics;
 using IDC.Application.Customer.Request;
+using IDC.Application.SSO;
 using IDC.Infrastructure.Cipher;
 using IDC.Infrastructure.Returned;
 using IDC.Repository.Dapper;
@@ -12,12 +14,10 @@ using System.Threading.Tasks;
 
 namespace IDC.Application.Customer
 {
-    public class CustomerApp
+    public class CustomerApp : BaseApp
     {
-        private readonly IRepositoryBase _repositoryBase;
-        public CustomerApp(IRepositoryBase repositoryBase)
+        public CustomerApp(IRepositoryBase repositoryBase, IAuth auth) : base(auth, repositoryBase)
         {
-            _repositoryBase = repositoryBase;
         }
         /// <summary>
         /// 获取客户信息

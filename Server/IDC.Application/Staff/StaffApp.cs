@@ -8,15 +8,15 @@ using IDC.Application.Staff.Request;
 using IDC.Repository.Dapper;
 using IDC.Repository.Entities.NsapBase;
 using Dapper;
+using IDC.Application.Basics;
+using IDC.Application.SSO;
 
 namespace IDC.Application.Staff
 {
-    public class StaffApp 
+    public class StaffApp : BaseApp
     {
-        private readonly IRepositoryBase _repositoryBase;
-        public StaffApp(IRepositoryBase repositoryBase)
+        public StaffApp(IRepositoryBase repositoryBase, IAuth auth) : base(auth, repositoryBase)
         {
-            _repositoryBase = repositoryBase;
         }
         public async Task<TableData> GetStaffList(QueryStaffListReq req)
         {
