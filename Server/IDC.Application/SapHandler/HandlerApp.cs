@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using IDC.Repository.Entities.Sap;
+using IDC.Infrastructure.AutoMapper;
 
 namespace IDC.Application.SapHandler
 {
@@ -29,7 +31,7 @@ namespace IDC.Application.SapHandler
         public async Task<Response> Rcvddetail(RcvddetailReq model)
         {
             StringBuilder errorMsg = new StringBuilder();
-            int res = 0; int eCode = 0; string eMesg = string.Empty;string docNum = string.Empty;
+            int res = 0; int eCode = 0; string eMesg = string.Empty; string docNum = string.Empty;
             try
             {
                 SAPbobsCOM.Documents dts = (SAPbobsCOM.Documents)company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.oPurchaseDeliveryNotes);
@@ -155,7 +157,7 @@ namespace IDC.Application.SapHandler
                 {
                     company.GetLastError(out eCode, out eMesg);
                     errorMsg.Append(string.Format("添加采购收货时调接口发生异常[异常代码:{0},异常信息:{1}]", eCode, eMesg));
-                   
+
                 }
                 else
                 {
@@ -174,7 +176,7 @@ namespace IDC.Application.SapHandler
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        public async Task<Response> RcddetailErp(RcvddetailReq model,string docNum) 
+        public async Task<Response> RcddetailErp(RcvddetailReq model, string docNum)
         {
 
             #region 添加主数据
@@ -194,12 +196,11 @@ namespace IDC.Application.SapHandler
                         @PaidToDate,@GrosProfit,@Comments,@JrnlMemo,@GroupNum,@SlpCode,@TrnspCode,@PartSupply
                         @CurSource,@UpdateDate,@CreateDate,@TaxDate,@TotalExpns,@Address2,@Indicator,@ShipToCode,@LicTradNum,
                         @PeyMethod,@Ref1,@PayToCode,@CntctCode,@CtlAccount,@SupplCode,@OwnerCode,@U_SL,@U_FPLB,@U_YGMD)";
-
-            buy_opdn opdn = new buy_opdn {
-                sbo_id = Define.Sbo_Id,
-                DocEntry=int.Parse(docNum),
-                DocNum= int.Parse(docNum),
-            };
+            var selopdnsql = @$"select * from OPDN where DocEntry={docNum}";
+            var opdnObj = (OPDN)(await _repositoryBase.DetailAsync<OPDN>(selopdnsql));
+            buy_opdn opdn = opdnObj.MapTo<buy_opdn>();
+            opdn.sbo_id = Define.Sbo_Id;
+            await _repositoryBase.AddAsync<buy_opdn>(opdnsql, opdn);
             #endregion
             #region 添加行数据
 
@@ -220,6 +221,12 @@ namespace IDC.Application.SapHandler
                                 TrnsCode=VALUES(TrnsCode),PackQty=VALUES(PackQty),BaseCard=VALUES(BaseCard),StockValue=VALUES(StockValue),GTotal=VALUES(GTotal),unitMsr=VALUES(unitMsr),
                                 NumPerMsr=VALUES(NumPerMsr),LineVat=VALUES(LineVat),INMPrice=VALUES(INMPrice),VisOrder=VALUES(VisOrder),GrssProfit=VALUES(GrssProfit),FinncPriod=VALUES(FinncPriod),
                                 ObjType=VALUES(ObjType),OpenCreQty=VALUES(OpenCreQty)";
+                var selpdn1sql = @$"select * from PDN1 where DocEntry={docNum}";
+                var pdn1Obj = await _repositoryBase.FindAsync<PDN1>(selopdnsql);
+                var pdn1s = pdn1Obj.MapToList<buy_pdn1>();
+                opdn.sbo_id = Define.Sbo_Id;
+                await _repositoryBase.AddAsync<buy_pdn1>(pdn1sql, pdn1s);
+
             }
             #endregion
             return new Response();

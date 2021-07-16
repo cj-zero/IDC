@@ -1,0 +1,61 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
+using IDC.Repository.Dapper;
+
+namespace IDC.Repository.Entities.Sap
+{
+    /// <summary>
+	/// 
+	/// </summary>
+    [ConnectionString("SapDbContext", "SapReadDbContext", DatabaseType.SqlServer)]
+    public partial class OCST 
+    {
+        public OCST()
+        {
+          this.Name= string.Empty;
+          this.GNRECode= string.Empty;
+          this.GSTCode= string.Empty;
+          this.GSTIsUT= string.Empty;
+        }
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        public string Name { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        public short? UserSign { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        public short? eCode { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        public string GNRECode { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        public string GSTCode { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        public string GSTIsUT { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        public short? GroupCode { get; set; }
+    }
+}

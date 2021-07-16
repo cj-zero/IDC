@@ -1,0 +1,67 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
+using IDC.Repository.Dapper;
+
+namespace IDC.Repository.Entities.Sap
+{
+    /// <summary>
+	/// 
+	/// </summary>
+    [ConnectionString("SapDbContext", "SapReadDbContext", DatabaseType.SqlServer)]
+    public partial class OLLR 
+    {
+        public OLLR()
+        {
+          this.CreateDate= DateTime.Now;
+          this.Status= string.Empty;
+          this.Log= string.Empty;
+          this.VersionNum= string.Empty;
+        }
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        public short? UserSign { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        public System.DateTime? CreateDate { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        public short? CreateTime { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        [Browsable(false)]
+        public int? EReportId { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        public string Status { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        public string Log { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        public int? ReportInst { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        public string VersionNum { get; set; }
+    }
+}
