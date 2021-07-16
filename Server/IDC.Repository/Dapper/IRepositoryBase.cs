@@ -49,6 +49,7 @@ namespace IDC.Repository.Dapper
         IEnumerable<dynamic> Find<T>( string selectSql, object param = null) where T : class;//查询列表
         Task<IEnumerable<dynamic>> FindAsync<T>(string selectSql, object param = null) where T : class;//异步查询列表
         dynamic Detail<T>(string selectSql, object param = null) where T : class;//查询单个数据
+        Task<IEnumerable<T>> GetAsync<T>(string selectSql, DynamicParameters entity = null) where T : class;//异步查询列表
         Task<dynamic> DetailAsync<T>(string selectSql, object param = null) where T : class;//异步查询单个数据
         #endregion
     }
