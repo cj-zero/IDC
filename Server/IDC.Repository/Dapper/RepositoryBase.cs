@@ -174,13 +174,19 @@ namespace IDC.Repository.Dapper
                 return connection.Query(selectSql, entity);
             } 
         }
-
         public async Task<IEnumerable<dynamic>> FindAsync<T>(string selectSql, DynamicParameters entity = null) where T : class
         {
             using (connection = DbConnection<T>()) 
             {
                 return await connection.QueryAsync(selectSql, entity);
-            } 
+            }
+        }
+        public async Task<IEnumerable<T>> GetAsync<T>(string selectSql, DynamicParameters entity = null) where T : class
+        {
+            using (connection = DbConnection<T>())
+            {
+                return await connection.QueryAsync<T>(selectSql, entity);
+            }
         }
 
         public dynamic Detail<T>(string selectSql, DynamicParameters entity = null) where T : class
