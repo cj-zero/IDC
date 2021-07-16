@@ -103,99 +103,99 @@ namespace IDC.Repository.Dapper
             throw new Exception("当前实体未指向数据库");
         }
        
-        public T Add<T>(string insertSql, DynamicParameters entity = null) where T : class
+        public T Add<T>(string insertSql, object param = null) where T : class
         {
             using (connection = DbConnection<T>(WriteAndReadEnum.Write)) 
             {
-                return connection.ExecuteScalar<T>(insertSql, entity);
+                return connection.ExecuteScalar<T>(insertSql, param); 
             }
         }
 
-        public async Task<T> AddAsync<T>(string insertSql, DynamicParameters entity = null) where T : class
+        public async Task<T> AddAsync<T>(string insertSql, object param = null) where T : class
         {
             using (connection = DbConnection<T>(WriteAndReadEnum.Write)) 
             {
-                return await connection.ExecuteScalarAsync<T>(insertSql, entity);
+                return await connection.ExecuteScalarAsync<T>(insertSql, param);
             }
         }
 
-        public async Task<int> BatchAddAsync<T>(string insertSql, DynamicParameters entity = null) where T : class
+        public async Task<int> BatchAddAsync<T>(string insertSql, object param = null) where T : class
         {
             using (connection = DbConnection<T>(WriteAndReadEnum.Write)) 
             {
-                return await connection.ExecuteAsync(insertSql, entity);
+                return await connection.ExecuteAsync(insertSql, param);
             }  
         }
 
-        public async Task<IDataReader> GetAddAsync<T>(string insertSql, DynamicParameters entity = null) where T : class
+        public async Task<IDataReader> GetAddAsync<T>(string insertSql, object param = null) where T : class
         {
             using (connection = DbConnection<T>(WriteAndReadEnum.Write)) 
             {
-                return await connection.ExecuteReaderAsync(insertSql, entity);
+                return await connection.ExecuteReaderAsync(insertSql, param);
             }  
         }
 
-        public int UpDate<T>(string updateSql, DynamicParameters entity = null) where T : class
+        public int UpDate<T>(string updateSql, object param = null) where T : class
         {
             using (connection = DbConnection<T>(WriteAndReadEnum.Write)) 
             {
-                return connection.Execute(updateSql, entity);
+                return connection.Execute(updateSql, param);
             }
         }
 
-        public async Task<int> UpDateAsync<T>(string updateSql, DynamicParameters entity = null) where T : class
+        public async Task<int> UpDateAsync<T>(string updateSql, object param = null) where T : class
         {
             using (connection = DbConnection<T>(WriteAndReadEnum.Write)) 
             {
-                return await connection.ExecuteAsync(updateSql, entity);
+                return await connection.ExecuteAsync(updateSql, param);
             }
         }
 
-        public int Delete<T>(string deleteSql, DynamicParameters entity = null) where T : class
+        public int Delete<T>(string deleteSql, object param = null) where T : class
         {
             using (connection = DbConnection<T>(WriteAndReadEnum.Write)) 
             {
-                return connection.Execute(deleteSql, entity);
+                return connection.Execute(deleteSql, param);
             }  
         }
 
-        public async Task<int> DeleteAsync<T>(string deleteSql, DynamicParameters entity = null) where T : class
+        public async Task<int> DeleteAsync<T>(string deleteSql, object param = null) where T : class
         {
             using (connection = DbConnection<T>(WriteAndReadEnum.Write)) 
             {
-                return await connection.ExecuteAsync(deleteSql, entity);
+                return await connection.ExecuteAsync(deleteSql, param);
             } 
         }
 
-        public IEnumerable<dynamic> Find<T>(string selectSql, DynamicParameters entity = null) where T : class
+        public IEnumerable<dynamic> Find<T>(string selectSql, object param = null) where T : class
         {
             using (connection = DbConnection<T>()) 
             {
-                return connection.Query(selectSql, entity);
+                return connection.Query(selectSql, param);
             } 
         }
 
-        public async Task<IEnumerable<dynamic>> FindAsync<T>(string selectSql, DynamicParameters entity = null) where T : class
+        public async Task<IEnumerable<dynamic>> FindAsync<T>(string selectSql, object param = null) where T : class
         {
             using (connection = DbConnection<T>()) 
             {
-                return await connection.QueryAsync(selectSql, entity);
+                return await connection.QueryAsync(selectSql, param);
             } 
         }
 
-        public dynamic Detail<T>(string selectSql, DynamicParameters entity = null) where T : class
+        public dynamic Detail<T>(string selectSql, object param = null) where T : class
         {
             using (connection = DbConnection<T>()) 
             {
-                return connection.QueryFirst(selectSql, entity);
+                return connection.QueryFirst(selectSql, param);
             }
         }
 
-        public async Task<dynamic> DetailAsync<T>(string selectSql, DynamicParameters entity = null) where T : class
+        public async Task<dynamic> DetailAsync<T>(string selectSql, object param = null) where T : class
         {
             using (connection = DbConnection<T>()) 
             {
-                return await connection.QueryFirstAsync(selectSql, entity);
+                return await connection.QueryFirstAsync(selectSql, param);
             } 
         }
 

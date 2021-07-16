@@ -1,0 +1,45 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
+using IDC.Repository.Dapper;
+
+namespace IDC.Repository.Entities.Sap
+{
+    /// <summary>
+	/// 
+	/// </summary>
+    [ConnectionString("SapDbContext", "SapReadDbContext", DatabaseType.SqlServer)]
+    public partial class OKRT 
+    {
+        public OKRT()
+        {
+          this.TaxRepType= string.Empty;
+          this.Descrip= string.Empty;
+          this.NameDesc= string.Empty;
+        }
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        public string TaxRepType { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        public string Descrip { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        public int? SumRepType { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        public string NameDesc { get; set; }
+    }
+}
