@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
+using Dapper.Contrib.Extensions;
 using IDC.Repository.Dapper;
 
 namespace IDC.Repository.Entities.Sap
@@ -11,21 +12,27 @@ namespace IDC.Repository.Entities.Sap
 	/// 
 	/// </summary>
     [ConnectionString("SapDbContext", "SapReadDbContext", DatabaseType.SqlServer)]
-    public partial class OITL 
+    public partial class OITL
     {
         public OITL()
         {
-          this.ItemCode= string.Empty;
-          this.ItemName= string.Empty;
-          this.DocDate= DateTime.Now;
-          this.CardCode= string.Empty;
-          this.CardName= string.Empty;
-          this.CreateDate= DateTime.Now;
-          this.LocCode= string.Empty;
-          this.VersionNum= string.Empty;
-          this.Transfered= string.Empty;
+            this.ItemCode = string.Empty;
+            this.ItemName = string.Empty;
+            this.DocDate = DateTime.Now;
+            this.CardCode = string.Empty;
+            this.CardName = string.Empty;
+            this.CreateDate = DateTime.Now;
+            this.LocCode = string.Empty;
+            this.VersionNum = string.Empty;
+            this.Transfered = string.Empty;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        [Browsable(false)]
+        [Key]
+        public int LogEntry { get; set; }
         
         /// <summary>
         /// 

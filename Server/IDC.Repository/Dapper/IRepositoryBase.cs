@@ -52,5 +52,14 @@ namespace IDC.Repository.Dapper
         Task<IEnumerable<T>> GetAsync<T>(string selectSql, DynamicParameters entity = null) where T : class;//异步查询列表
         Task<dynamic> DetailAsync<T>(string selectSql, object param = null) where T : class;//异步查询单个数据
         #endregion
+        #region 事务
+        int ExecuteTransaction<T>(string[] sqlarr) where T : class;
+        Task<int> ExecuteTransactionAsync<T>(string[] sqlarr) where T : class;
+        int ExecuteTransaction<T>(Dictionary<string, object> dic) where T : class;
+        Task<int> ExecuteTransactionAsync<T>(Dictionary<string, object> dic) where T : class;
+        #endregion
+        #region 存储过程
+        Task<IEnumerable<T>> ProcAsync<T>(string procName, object param = null) where T : class;
+        #endregion
     }
 }

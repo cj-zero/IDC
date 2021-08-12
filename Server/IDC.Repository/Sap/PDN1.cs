@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
+using Dapper.Contrib.Extensions;
 using IDC.Repository.Dapper;
 
 namespace IDC.Repository.Entities.Sap
@@ -145,8 +146,19 @@ namespace IDC.Repository.Entities.Sap
           this.U_PSD= string.Empty;
           this.U_RelDoc= string.Empty;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        [Key]
+        public int DocEntry { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        [Key]
+        public int LineNum { get; set; }
 
-        
         /// <summary>
         /// 
         /// </summary>

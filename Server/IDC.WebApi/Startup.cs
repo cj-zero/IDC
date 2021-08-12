@@ -85,7 +85,7 @@ namespace IDC.WebApi
             services.AddCors();
             //设置cap和rabbitmq
             services.AddIDCCAP(Configuration);
-            //services.AddSap(Configuration);
+            services.AddSap(Configuration);
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -130,18 +130,18 @@ namespace IDC.WebApi
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                //swagger如发布后希望不继续使用，移入if即可
-                app.UseSwagger();
-                app.UseSwaggerUI(c =>
-                {
-                    foreach (var controller in GetControllers())
-                    {
-                        c.SwaggerEndpoint($"/swagger/{controller}/swagger.json", controller);
-                    }
-                }
-                );
+                
             }
-
+            //swagger如发布后希望不继续使用，移入if即可
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                foreach (var controller in GetControllers())
+                {
+                    c.SwaggerEndpoint($"/swagger/{controller}/swagger.json", controller);
+                }
+            }
+            );
             //测试可以允许任意跨域，正式环境要加权限
             app.UseCors(builder => builder.AllowAnyOrigin()
                 .AllowAnyMethod()

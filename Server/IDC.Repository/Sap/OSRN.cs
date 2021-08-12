@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
+using Dapper.Contrib.Extensions;
 using IDC.Repository.Dapper;
 
 namespace IDC.Repository.Entities.Sap
@@ -35,8 +36,13 @@ namespace IDC.Repository.Entities.Sap
           this.itemName= string.Empty;
           this.UpdateDate= DateTime.Now;
         }
-
         
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        [Key]
+        public int AbsEntry { get; set; }
         /// <summary>
         /// 
         /// </summary>

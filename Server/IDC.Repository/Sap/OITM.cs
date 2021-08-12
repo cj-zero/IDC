@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
+using Dapper.Contrib.Extensions;
 using IDC.Repository.Dapper;
 
 namespace IDC.Repository.Entities.Sap
@@ -219,7 +220,12 @@ namespace IDC.Repository.Entities.Sap
           this.U_FDY= string.Empty;
         }
 
-        
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        [Key]
+        public string ItemCode { get; set; }
         /// <summary>
         /// 
         /// </summary>

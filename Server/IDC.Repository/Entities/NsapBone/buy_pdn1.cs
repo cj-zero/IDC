@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
+using Dapper.Contrib.Extensions;
 using IDC.Repository.Dapper;
 
 namespace IDC.Repository.Entities.Sap
@@ -10,7 +11,7 @@ namespace IDC.Repository.Entities.Sap
     /// <summary>
 	/// 
 	/// </summary>
-    [ConnectionString("SapDbContext", "SapReadDbContext", DatabaseType.SqlServer)]
+    [ConnectionString("NsapBoneDbContext", "NsapBoneReadDbContext")]
     public partial class buy_pdn1 
     {
         public buy_pdn1()
@@ -101,8 +102,25 @@ namespace IDC.Repository.Entities.Sap
           this.U_BXSJ= string.Empty;
           this.U_ZS= string.Empty;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        [Key]
+        public int sbo_id { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        [Key]
+        public int DocEntry { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        [Key]
+        public int LineNum { get; set; }
 
-        
         /// <summary>
         /// 
         /// </summary>
