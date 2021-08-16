@@ -1,6 +1,7 @@
 ﻿using IDC.Application.SapHandler;
 using IDC.Application.SapHandler.Request;
 using IDC.Infrastructure.Returned;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -33,5 +34,26 @@ namespace IDC.WebApi.Controllers.Handler
         }
 
 
+        /// <summary>
+        /// 创建并提交库存转储
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<string> StockTransferSave(StockTransferReq req)
+        {
+            return await _handlerApp.StockTransferSave(req);
+        }
+
+        /// <summary>
+        /// 审批库存转储单
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<string> Approval(ApprovalReq req)
+        {
+            return await _handlerApp.Approval(req);
+        }
     }
 }

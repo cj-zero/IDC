@@ -28,16 +28,16 @@ namespace IDC.Application.Production
         {
             var result = new TableData();
             StringBuilder sql = new StringBuilder();
-            sql.Append("SELECT DocEntry,Type,CardCode,OriginAbs,ItemCode,CreateDate,PlannedQty,Uom,U_WO_LTDW,Warehouse,Status from product_owor where 1=1 ");
+            sql.Append(@$"SELECT DocEntry,Type,CardCode,OriginAbs,ItemCode,CreateDate,PlannedQty,Uom,U_WO_LTDW,Warehouse,Status from product_owor where sbo_id={Define.Sbo_Id} ");
             var Parameters = new DynamicParameters();
             if (!string.IsNullOrWhiteSpace(request.StartDate))
             {
-                sql.Append("and UpdateDate >= @StartDate");
+                sql.Append(" and UpdateDate >= @StartDate");
                 Parameters.Add("@StartDate",DateTime.Parse(request.StartDate).Date);
             }
             if (!string.IsNullOrWhiteSpace(request.EndDate))
             {
-                sql.Append("and UpdateDate < @EndDate");
+                sql.Append(" and UpdateDate < @EndDate");
                 Parameters.Add("@EndDate", DateTime.Parse(request.EndDate).AddDays(1).Date);
             }
             sql.Append(" limit @Start,@End");
@@ -67,7 +67,8 @@ namespace IDC.Application.Production
                 wot_dept = c.U_WO_LTDW,
                 wot_receipt_wh = c.Warehouse,
                 wot_status = c.Status,
-                wot_source_type = "ERP"
+                wot_source_type = "ERP",
+                UpdateTime =c.UpdateDate
             });
             return result;
         }
@@ -76,16 +77,16 @@ namespace IDC.Application.Production
         {
             var result = new TableData();
             StringBuilder sql = new StringBuilder();
-            sql.Append("SELECT a.* from product_store_relation a left JOIN store_wtr1 b on a.StoreId=b.DocEntry where 1=1 ");
+            sql.Append(@$"SELECT a.* from product_store_relation a left JOIN store_wtr1 b on a.StoreId=b.DocEntry where a.sbo_id={Define.Sbo_Id} and b.sbo_id={Define.Sbo_Id}");
             var Parameters = new DynamicParameters();
             if (!string.IsNullOrWhiteSpace(request.StartDate))
             {
-                sql.Append("and b.UpdateDate >= @StartDate");
+                sql.Append(" and b.UpdateDate >= @StartDate");
                 Parameters.Add("@StartDate", DateTime.Parse(request.StartDate).Date);
             }
             if (!string.IsNullOrWhiteSpace(request.EndDate))
             {
-                sql.Append("and b.UpdateDate < @EndDate");
+                sql.Append(" and b.UpdateDate < @EndDate");
                 Parameters.Add("@EndDate", DateTime.Parse(request.EndDate).AddDays(1).Date);
             }
             sql.Append(" limit @Start,@End");
@@ -116,7 +117,7 @@ namespace IDC.Application.Production
                     wssd_unit = o.BuyUnitMsr,//单位
                     wssd_bom_item = o.LineNum,
                     delete_flag = 0
-                })
+                }),
             });
             return result;
         }
