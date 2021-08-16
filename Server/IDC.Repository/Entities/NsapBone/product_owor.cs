@@ -42,7 +42,7 @@ namespace IDC.Repository.Entities.NsapBone
           this.Printed= string.Empty;
           this.OcrCode= string.Empty;
           this.PIndicator= string.Empty;
-          this.UpdateDate= DateTime.Now;
+          //this.UpdateDate= DateTime.Now;
           this.Project= string.Empty;
           this.SupplCode= string.Empty;
           this.U_ZS= string.Empty;

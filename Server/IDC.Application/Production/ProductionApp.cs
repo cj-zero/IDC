@@ -28,7 +28,7 @@ namespace IDC.Application.Production
         {
             var result = new TableData();
             StringBuilder sql = new StringBuilder();
-            sql.Append(@$"SELECT DocEntry,Type,CardCode,OriginAbs,ItemCode,CreateDate,PlannedQty,Uom,U_WO_LTDW,Warehouse,Status from product_owor where sbo_id={Define.Sbo_Id} ");
+            sql.Append(@$"SELECT DocEntry,Type,CardCode,OriginAbs,ItemCode,CreateDate,PlannedQty,Uom,U_WO_LTDW,Warehouse,Status,UpdateDate from product_owor where sbo_id={Define.Sbo_Id} ");
             var Parameters = new DynamicParameters();
             if (!string.IsNullOrWhiteSpace(request.StartDate))
             {
@@ -77,7 +77,7 @@ namespace IDC.Application.Production
         {
             var result = new TableData();
             StringBuilder sql = new StringBuilder();
-            sql.Append(@$"SELECT a.* from product_store_relation a left JOIN store_wtr1 b on a.StoreId=b.DocEntry where a.sbo_id={Define.Sbo_Id} and b.sbo_id={Define.Sbo_Id}");
+            sql.Append(@$"SELECT a.*,b.UpdateDate from product_store_detail a left JOIN store_owtr b on a.StoreId=b.DocEntry where a.sbo_id={Define.Sbo_Id} and b.sbo_id={Define.Sbo_Id} and a.IssueType=1");
             var Parameters = new DynamicParameters();
             if (!string.IsNullOrWhiteSpace(request.StartDate))
             {
@@ -92,10 +92,11 @@ namespace IDC.Application.Production
             sql.Append(" limit @Start,@End");
             Parameters.Add("@Start", (request.page - 1) * request.limit);
             Parameters.Add("@End", request.limit);
-            var list = (await _repositoryBase.GetAsync<product_store_relation>(sql.ToString(), Parameters)).ToList();
+            var list = (await _repositoryBase.GetAsync<product_store_detail>(sql.ToString(), Parameters)).ToList();
 
             //detail
             var docentry = string.Join(',', list.Select(c => c.StoreId).ToList());
+            docentry = !string.IsNullOrWhiteSpace(docentry) ? docentry : "''";
             string detailSql = "SELECT a.*,b.BuyUnitMsr from store_wtr1 a left join store_oitm b on a.itemCode=b.ItemCode where a.DocEntry in (" + docentry + ")";
             var detailList= (await _repositoryBase.GetAsync<store_wtr1>(detailSql)).ToList();
 
@@ -107,9 +108,10 @@ namespace IDC.Application.Production
                 wsst_docno = c.StoreId,
                 wsst_status = 0,
                 delete_flag = 0,
+                UpdateTime = c.UpdateDate,
                 detail = detailList.Where(o => o.DocEntry == c.StoreId).Select(o => new
                 {
-                    wssd_source_line_id = c.StoreId.ToString()+o.LineNum.ToString(),
+                    wssd_source_line_id = c.StoreId.ToString() + o.LineNum.ToString(),
                     wo = c.ProductId,
                     pt_no = o.ItemCode,
                     wssd_plan_qty = o.Quantity,
@@ -117,7 +119,7 @@ namespace IDC.Application.Production
                     wssd_unit = o.BuyUnitMsr,//单位
                     wssd_bom_item = o.LineNum,
                     delete_flag = 0
-                }),
+                })
             });
             return result;
         }
