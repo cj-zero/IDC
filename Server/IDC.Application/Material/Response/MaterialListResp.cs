@@ -35,7 +35,7 @@ namespace IDC.Application.Material.Response
         /// <summary>
         /// 修改时间
         /// </summary>
-        public DateTime last_update_time { get; set; }
+        public DateTime? last_update_time { get; set; }
         /// <summary>
         /// 有效开始日期
         /// </summary>

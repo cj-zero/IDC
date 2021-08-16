@@ -22,11 +22,11 @@ namespace IDC.Application.Material
         public async Task<TableData> GetMaterialList(QueryMaterialListReq req)
         {
             var result = new TableData();
-            var sql = "select a.ItemCode,a.ItemName,a.SalUnitMsr,a.UpdateDate,a.validFrom,a.validTo,b.type_nm from store_oitm a left join store_item_type b on a.u_wlbm=b.type_id where 1=1";
+            var sql = @$"select a.ItemCode,a.ItemName,a.SalUnitMsr,a.UpdateDate,a.validFrom,a.validTo,b.type_nm from store_oitm a left join store_item_type b on a.u_wlbm=b.type_id where a.sbo_id={Define.Sbo_Id}";
             var Parameters = new DynamicParameters();
             if (!string.IsNullOrWhiteSpace(req.StartTime))
             {
-                sql += " and a.UpdateDate > @StartTime"; Parameters.Add("StartTime", req.StartTime);
+                sql += " and a.UpdateDate >= @StartTime"; Parameters.Add("StartTime", req.StartTime);
             }
             if (!string.IsNullOrWhiteSpace(req.EndTime))
             {

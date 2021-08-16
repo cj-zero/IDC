@@ -27,7 +27,7 @@ namespace IDC.Application.Customer
         public async Task<TableData> GetCustomerList(QueryCustomerListReq req)
         {
             var result = new TableData();
-            var sql = "select CardCode,upd_dt from crm_ocrd where 1=1";
+            var sql = @$"select CardCode,upd_dt from crm_ocrd where sbo_id={Define.Sbo_Id}";
             if (!req.IsCustomer)
             {
                 sql += $" and CardType={"'S'"}";
@@ -39,11 +39,11 @@ namespace IDC.Application.Customer
             var Parameters = new DynamicParameters();
             if (!string.IsNullOrWhiteSpace(req.StartTime))
             {
-                sql += " and b.upd_dt > @StartTime"; Parameters.Add("StartTime", req.StartTime);
+                sql += " and upd_dt >= @StartTime"; Parameters.Add("StartTime", req.StartTime);
             }
             if (!string.IsNullOrWhiteSpace(req.EndTime))
             {
-                sql += " and b.upd_dt < @EndTime"; Parameters.Add("EndTime", DateTime.Parse(req.EndTime).AddDays(1));
+                sql += " and upd_dt < @EndTime"; Parameters.Add("EndTime", DateTime.Parse(req.EndTime).AddDays(1));
             }
             result.Count = (await _repositoryBase.FindAsync<crm_ocrd>(sql, Parameters)).Count();
             Parameters.Add("Start", req.limit * (req.page-1));
