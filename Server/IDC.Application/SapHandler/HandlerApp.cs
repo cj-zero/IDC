@@ -20,6 +20,7 @@ using System.Runtime.Serialization.Json;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using NSAP.Entity.Sales;
+using MySql.Data.MySqlClient;
 
 namespace IDC.Application.SapHandler
 {
@@ -255,7 +256,7 @@ namespace IDC.Application.SapHandler
             DynamicParameters parameters = new DynamicParameters();
             parameters.Add("itemCodes", pdn1s.Select(p => p.ItemCode).ToArray());
             parameters.Add("whsCodes", pdn1s.Select(p => p.WhsCode).ToArray());
-            var oitwList = await _repositoryBase.GetAsync<OITW>($@"select ItemCode, IsCommited,OnHand,OnOrder from OITW where ItemCode in (@itemCodes) and WhsCode in(@whsCodes)", parameters);
+            var oitwList = await _repositoryBase.GetAsync<OITW>($@"select ItemCode, IsCommited,OnHand,OnOrder from OITW where ItemCode in @itemCodes and WhsCode in @whsCodes", parameters);
             var oitws = oitwList.MapToList<OITW>();
             Dictionary<string, object> storeoitws = new Dictionary<string, object>();
             foreach (var item in oitwList)
@@ -264,7 +265,7 @@ namespace IDC.Application.SapHandler
 
                 storeoitws.TryAdd(@$"update store_oitw set OnHand={item.OnHand},IsCommited={item.IsCommited},OnOrder={item.OnOrder} where ItemCode={item.ItemCode} and WhsCode={WhsCode}", null);
             }
-            var oitmList = await _repositoryBase.GetAsync<OITM>($@"select ItemCode, IsCommited, OnHand, OnOrder, LastPurCur, LastPurPrc, LastPurDat, UpdateDate from OITM where ItemCode in (@itemCodes)", parameters);
+            var oitmList = await _repositoryBase.GetAsync<OITM>($@"select ItemCode, IsCommited, OnHand, OnOrder, LastPurCur, LastPurPrc, LastPurDat, UpdateDate from OITM where ItemCode in @itemCodes", parameters);
             var oitms = oitmList.MapToList<OITM>();
             foreach (var item in oitmList)
             {
@@ -356,7 +357,7 @@ namespace IDC.Application.SapHandler
                 //保存最终审批仓库，用于到仓库主管审批时取仓库主管
                 await UpdateWfaJobPara(result, 2, req.AuditWhs);
                 //int.Parse(result), req.UserID, req.storeOWTR.Comments, "", 0
-                result = await WorkflowSubmit(new ApprovalReq { jobID= int.Parse(result) ,UserID=req.UserID,remarks= req.storeOWTR.Comments,cont="",auditor=0 });
+                await WorkflowSubmit(new ApprovalReq { jobID= int.Parse(result) ,UserID=req.UserID,remarks= req.storeOWTR.Comments,cont="",auditor=0 });
                 #region 如果到了仓库主管审核步骤，则设置工作流审批人为仓库主管
                 var steptab = await GetAuditStepName(newjobid);
                 if (steptab != null && steptab.Count > 0)
@@ -374,7 +375,7 @@ namespace IDC.Application.SapHandler
                 #endregion
                 if (req.storeOWTR.serialNumber.Count > 0)
                 {
-                    if (await UpdateSerialNumber(req.storeOWTR.serialNumber, newjobid)) { result = "1"; }
+                    await UpdateSerialNumber(req.storeOWTR.serialNumber, newjobid);
                 }
             }
             return result;
@@ -424,10 +425,8 @@ namespace IDC.Application.SapHandler
         /// </summary>
         public async Task<bool> UpdateWfaJobPara(string jobId, int para_idx, string para_val)
         {
-            StringBuilder strSql = new StringBuilder();
-            strSql.AppendFormat("INSERT INTO {0}.wfa_job_para(job_id,para_idx,para_val)");
-            strSql.Append("VALUES(@job_id,@para_idx,@para_val) ON DUPLICATE KEY UPDATE para_val=VALUES(para_val)");
-            int rows = await _repositoryBase.BatchAddAsync<base_dep>(strSql.ToString(),new { jobId = jobId , para_idx = para_idx , para_val = para_val });
+            var sql = string.Format("INSERT INTO wfa_job_para(job_id,para_idx,para_val) VALUES('{0}','{1}','{2}') ON DUPLICATE KEY UPDATE para_val= '{2}'", jobId, para_idx, para_val);
+            int rows = await _repositoryBase.BatchAddAsync<base_dep>(sql);
             return rows > 0 ? true : false;
         }
         #endregion
@@ -439,7 +438,7 @@ namespace IDC.Application.SapHandler
         /// <returns></returns>
         public async Task<List<dynamic>> GetAuditStepName(int JobId)
         {
-            string strSql = string.Format("SELECT a.step_id,b.step_nm,b.audit_level FROM wfa_job a LEFT JOIN wfa_step b ON a.step_id=b.step_id WHERE a.job_id=?job_id");
+            string strSql = string.Format("SELECT a.step_id,b.step_nm,b.audit_level FROM wfa_job a LEFT JOIN wfa_step b ON a.step_id=b.step_id WHERE a.job_id={0}", JobId);
             return (await _repositoryBase.FindAsync<base_user>(strSql)).ToList();
         }
         public async Task<string> UpdateAuditPsn(int job_id, int audit_level, int audit_obj)
@@ -454,8 +453,8 @@ namespace IDC.Application.SapHandler
         public async Task<string> SelectWhsUser(string wohs, string sboID)
         {
             string PrintSql = string.Format("SELECT user_id FROM store_owhs WHERE WhsCode = '{0}' and sbo_id ={1};", wohs, sboID);
-            object _t = await _repositoryBase.FindAsync<base_dep>(PrintSql);
-            return _t == null ? "-1" : _t.ToString();
+            var _t = await _repositoryBase.DetailAsync<buy_opor>(PrintSql);
+            return _t == null ? "-1" : _t.user_id.ToString();
         }
         //修改已选择序列号状态
         public async Task<bool> UpdateSerialNumber(IList<billSerialNumber> osrnlist, int submitjobid)
@@ -467,7 +466,14 @@ namespace IDC.Application.SapHandler
                 foreach (billSerialNumberChooseItem serial in osrn.Details)
                 {
                     strSql = string.Format("INSERT INTO store_osrn_alreadyexists (ItemCode,SysNumber,DistNumber,MnfSerial,IsChange,JobId) VALUES (@ItemCode,@SysNumber,@DistNumber,@MnfSerial,@IsChange,@JobId) ON Duplicate KEY UPDATE DistNumber=VALUES(DistNumber),MnfSerial=VALUES(MnfSerial),IsChange=VALUES(IsChange),JobId=VALUES(JobId)");
-                    res = await _repositoryBase.BatchAddAsync<base_dep>(strSql.ToString(), new { ItemCode = osrn.ItemCode, SysNumber = serial.SysSerial, DistNumber = serial.IntrSerial, MnfSerial= serial.SuppSerial , IsChange =1, JobId = submitjobid });
+                    DynamicParameters parameters = new DynamicParameters();
+                    parameters.Add("@ItemCode", osrn.ItemCode);
+                    parameters.Add("@SysNumber", int.Parse(serial.SysSerial));
+                    parameters.Add("@DistNumber", serial.IntrSerial);
+                    parameters.Add("@MnfSerial", serial.SuppSerial);
+                    parameters.Add("@IsChange", 1);
+                    parameters.Add("@JobId", submitjobid);
+                    res = await _repositoryBase.BatchAddAsync<buy_opor>(strSql, parameters);
                 }
             }
             return res > 0 ? true : false;
@@ -506,20 +512,22 @@ namespace IDC.Application.SapHandler
             //    {
             //        carName = dt.Rows[0][0].ToString();
             //    }
-            //}
+            //}MySqlDbType.MediumBlob
+            //var test = new { pJobName = jobName, pFuncID = funcID, pJobData = jobdata , pUserID = userID, pRemarks = remarks, pSboID= sboID, pCarCode = carCode, pCarName = carName, pDocTotal = docTotal , pBaseEntry = baseEntry ,pBaseType= baseType, pAssemblyName = assemblyName , pClassName = className };
             DynamicParameters parameters = new DynamicParameters();
-            parameters.Add("pJobName", jobName);
-            parameters.Add("pFuncID", funcID);
-            parameters.Add("pJobData", jobdata);
-            parameters.Add("pUserID", userID);
-            parameters.Add("pRemarks", remarks);
-            parameters.Add("pSboID", carCode);
-            parameters.Add("pCarCode", jobName);
-            parameters.Add("pCarName", carName);
-            parameters.Add("pDocTotal", baseType);
-            parameters.Add("pBaseEntry", baseEntry);
-            parameters.Add("pAssemblyName", assemblyName);
-            parameters.Add("pClassName", className);
+            parameters.Add("?pJobName", jobName);
+            parameters.Add("?pFuncID", funcID);
+            parameters.Add("?pJobData", jobdata);
+            parameters.Add("?pUserID", userID);
+            parameters.Add("?pRemarks", remarks);
+            parameters.Add("?pSboID", sboID);
+            parameters.Add("?pCarCode", carCode);
+            parameters.Add("?pCarName", carName);
+            parameters.Add("?pDocTotal", docTotal);
+            parameters.Add("?pBaseType", baseType);
+            parameters.Add("?pBaseEntry", baseEntry);
+            parameters.Add("?pAssemblyName", assemblyName);
+            parameters.Add("?pClassName", className);
 
             return (await _repositoryBase.ProcAsync<base_dep>("sp_process_build", parameters)).ToString();
         }
@@ -532,11 +540,11 @@ namespace IDC.Application.SapHandler
         public async Task<string> WorkflowSubmit(ApprovalReq req)
         {
             DynamicParameters parameters = new DynamicParameters();
-            parameters.Add("pJobID", req.jobID);
-            parameters.Add("pUserID", req.UserID);
-            parameters.Add("pRemarks", req.remarks);
-            parameters.Add("pCont", req.cont);
-            parameters.Add("pAuditor", req.auditor);
+            parameters.Add("?pJobID", req.jobID);
+            parameters.Add("?pUserID", req.UserID);
+            parameters.Add("?pRemarks", req.remarks);
+            parameters.Add("?pCont", req.cont);
+            parameters.Add("?pAuditor", req.auditor);
             return (await _repositoryBase.ProcAsync<base_dep>("sp_process_submit", parameters)).ToString();
         }
         #endregion

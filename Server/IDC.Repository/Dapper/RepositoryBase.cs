@@ -408,13 +408,13 @@ namespace IDC.Repository.Dapper
         {
             using (connection = DbConnection<T>(WriteAndReadEnum.Write))
             {
-               return await connection.ExecuteScalarAsync("procName", param, commandType: CommandType.StoredProcedure);
+               return await connection.ExecuteScalarAsync(procName, param, commandType: CommandType.StoredProcedure);
             }
         }
 
-        Task<IEnumerable<T>> IRepositoryBase.ProcAsync<T>(string procName, object param)
-        {
-            throw new NotImplementedException();
-        }
+        //Task<IEnumerable<T>> IRepositoryBase.ProcAsync<T>(string procName, object param)
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }

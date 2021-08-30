@@ -59,7 +59,7 @@ namespace IDC.Repository.Dapper
         Task<int> ExecuteTransactionAsync<T>(Dictionary<string, object> dic) where T : class;
         #endregion
         #region 存储过程
-        Task<IEnumerable<T>> ProcAsync<T>(string procName, object param = null) where T : class;
+        Task<object> ProcAsync<T>(string procName, object param = null) where T : class;
         #endregion
     }
 }
