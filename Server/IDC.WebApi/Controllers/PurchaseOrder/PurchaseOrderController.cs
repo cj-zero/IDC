@@ -1,4 +1,5 @@
 ﻿using IDC.Application.PurchaseOrder;
+using IDC.Application.SapHandler.Request;
 using IDC.Infrastructure.Returned;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -44,6 +45,50 @@ namespace IDC.WebApi.Controllers.PurchaseOrder
         public async Task<TableData> GetOpdnByOpor(string docentry)
         {
             return await _app.GetOpdnByOpor(docentry);
+        }
+
+        /// <summary>
+        /// 获取仓库列表
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<TableData> GetStoreOwhsList(string key="")
+        {
+            return await _app.GetStoreOwhsList(key);
+        }
+
+        /// <summary>
+        /// 根据passport_id获取用户信息
+        /// </summary>
+        /// <param name="passport_id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<TableData> GetUserInfoByPassportId(int passport_id)
+        {
+            return await _app.GetUserInfoByPassportId(passport_id);
+        }
+
+        /// <summary>
+        /// 创建并提交库存转储
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<string> StockTransferSave(StockTransferReq req)
+        {
+            return await _app.StockTransferSave(req);
+        }
+
+        /// <summary>
+        /// 审批库存转储单
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<string> Approval(ApprovalReq req)
+        {
+            return await _app.Approval(req);
         }
     }
 }
