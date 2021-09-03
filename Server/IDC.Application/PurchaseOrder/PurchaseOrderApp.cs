@@ -79,16 +79,7 @@ namespace IDC.Application.PurchaseOrder
                 var Parameters = new DynamicParameters();
                 Parameters.Add("DocEntry", docentry);
                 var pdnList = (await _repositoryBase.FindAsync<buy_pdn1>(sql.ToString(), Parameters)).OrderByDescending(c => c.DocEntry).ToList();
-
-                var pdnDocEntryList = pdnList.Select(c => c.pdn).Distinct().ToList();
-                Dictionary<int, List<object>> dic = new Dictionary<int, List<object>>();
-                foreach (var item in pdnDocEntryList)
-                {
-                    int items = Convert.ToInt32(item);
-                    var list = pdnList.Where(c => c.pdn == item).ToList();
-                    dic.Add(items, list);
-                }
-                result.Data = dic;
+                result.Data = pdnList;
             }
             catch (Exception e)
             {
@@ -153,50 +144,60 @@ namespace IDC.Application.PurchaseOrder
         /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>
-        public async Task<string> StockTransferSave(StockTransferReq req)
+        public async Task<TableData> StockTransferSave(StockTransferReq req)
         {
-            string result = "0"; int FuncID = 0;
-            byte[] job_data = Serialize(req.storeOWTR);
-            if (req.storeOWTR.WhsCode == "37" && req.storeOWTR.Filler != "01") //37仓走单独的流程
+            var results = new TableData();
+            try
             {
-                FuncID = int.Parse(await GetFuncIdByURL("store/StockTransfer_Main.aspx"));
-            }
-            else
-            {
-                FuncID = int.Parse(await GetFuncIdByURL("store/StockTransfer.aspx"));
-            }
-            result = await WorkflowBuild("库存转储", FuncID, req.UserID, job_data, req.storeOWTR.Comments, Define.Sbo_Id, req.storeOWTR.CardCode, req.storeOWTR.CardName, 0, -1, 0, "BOneAPI", "NSAP.B1Api.BOneOWTR");
-            if (int.Parse(result) > 0)
-            {
-                int newjobid = int.Parse(result);
-                int user_id = 0;
-                //转入仓库保存，用于不良品仓审批流跳转
-                await AddStockJump(result, req._WhsCode);
-                //保存最终审批仓库，用于到仓库主管审批时取仓库主管
-                await UpdateWfaJobPara(result, 2, req.AuditWhs);
-                //int.Parse(result), req.UserID, req.storeOWTR.Comments, "", 0
-                await WorkflowSubmit(new ApprovalReq { jobID = int.Parse(result), UserID = req.UserID, remarks = req.storeOWTR.Comments, cont = "", auditor = 0 });
-                #region 如果到了仓库主管审核步骤，则设置工作流审批人为仓库主管
-                var steptab = await GetAuditStepName(newjobid);
-                if (steptab != null && steptab.Count > 0)
+                string result = "0"; int FuncID = 0;
+                byte[] job_data = Serialize(req.storeOWTR);
+                if (req.storeOWTR.WhsCode == "37" && req.storeOWTR.Filler != "01") //37仓走单独的流程
                 {
-                    string stepnm = steptab.FirstOrDefault().step_nm.ToString();
-                    if (stepnm == "仓库主管审核")
+                    FuncID = int.Parse(await GetFuncIdByURL("store/StockTransfer_Main.aspx"));
+                }
+                else
+                {
+                    FuncID = int.Parse(await GetFuncIdByURL("store/StockTransfer.aspx"));
+                }
+                result = await WorkflowBuild("库存转储", FuncID, req.UserID, job_data, req.storeOWTR.Comments, Define.Sbo_Id, req.storeOWTR.CardCode, req.storeOWTR.CardName, 0, -1, 0, "BOneAPI", "NSAP.B1Api.BOneOWTR");
+                if (int.Parse(result) > 0)
+                {
+                    int newjobid = int.Parse(result);
+                    int user_id = 0;
+                    //转入仓库保存，用于不良品仓审批流跳转
+                    await AddStockJump(result, req._WhsCode);
+                    //保存最终审批仓库，用于到仓库主管审批时取仓库主管
+                    await UpdateWfaJobPara(result, 2, req.AuditWhs);
+                    //int.Parse(result), req.UserID, req.storeOWTR.Comments, "", 0
+                    await WorkflowSubmit(new ApprovalReq { jobID = int.Parse(result), UserID = req.UserID, remarks = req.storeOWTR.Comments, cont = "", auditor = 0 });
+                    #region 如果到了仓库主管审核步骤，则设置工作流审批人为仓库主管
+                    var steptab = await GetAuditStepName(newjobid);
+                    if (steptab != null && steptab.Count > 0)
                     {
-                        user_id = Convert.ToInt32(await SelectWhsUser(req.AuditWhs, Define.Sbo_Id.ToString()));
-                        if (user_id > 0)
+                        string stepnm = steptab.FirstOrDefault().step_nm.ToString();
+                        if (stepnm == "仓库主管审核")
                         {
-                            await UpdateAuditPsn(newjobid, int.Parse(steptab.FirstOrDefault().audit_level.ToString()), user_id);
+                            user_id = Convert.ToInt32(await SelectWhsUser(req.AuditWhs, Define.Sbo_Id.ToString()));
+                            if (user_id > 0)
+                            {
+                                await UpdateAuditPsn(newjobid, int.Parse(steptab.FirstOrDefault().audit_level.ToString()), user_id);
+                            }
                         }
                     }
+                    #endregion
+                    if (req.storeOWTR.serialNumber.Count > 0)
+                    {
+                        await UpdateSerialNumber(req.storeOWTR.serialNumber, newjobid);
+                    }
                 }
-                #endregion
-                if (req.storeOWTR.serialNumber.Count > 0)
-                {
-                    await UpdateSerialNumber(req.storeOWTR.serialNumber, newjobid);
-                }
+                results.Data = result;
             }
-            return result;
+            catch (Exception ex)
+            {
+                results.Code = 500;
+                results.Message = ex.Message;
+            }
+            return results;
         }
         /// <summary>
         /// 审批库存转储单
