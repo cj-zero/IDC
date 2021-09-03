@@ -89,6 +89,11 @@ namespace IDC.Application.PurchaseOrder
             return result;
         }
 
+        /// <summary>
+        /// 根据passport_id 获取ERP3.0 user_id
+        /// </summary>
+        /// <param name="passport_id"></param>
+        /// <returns></returns>
         public async Task<TableData> GetUserInfoByPassportId(int passport_id)
         {
             var result = new TableData();
@@ -368,5 +373,30 @@ namespace IDC.Application.PurchaseOrder
         }
         #endregion
         #endregion
+
+
+        public async Task<TableData> GetStockTransferResult(string list)
+        {
+            var result = new TableData();
+            try
+            {
+                //var job_id_list = "1,2";
+                //foreach (var item in list)
+                //{
+                //    job_id_list = job_id_list + "," + item;
+                //}
+                StringBuilder sql = new StringBuilder();
+                sql.AppendFormat(@"select job_id,job_state from wfa_job where job_id in ({0})", list);
+                var Parameters = new DynamicParameters();
+                var baseUserInfo = (await _repositoryBase.FindAsync<base_user>(sql.ToString(), null)).FirstOrDefault();
+                result.Data = baseUserInfo;
+            }
+            catch (Exception e)
+            {
+                result.Code = 500;
+                result.Message = e.Message;
+            }
+            return result;
+        }
     }
 }

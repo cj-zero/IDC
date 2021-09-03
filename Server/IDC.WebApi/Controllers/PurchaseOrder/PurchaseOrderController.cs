@@ -75,7 +75,7 @@ namespace IDC.WebApi.Controllers.PurchaseOrder
         /// <param name="req"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<string> StockTransferSave(StockTransferReq req)
+        public async Task<TableData> StockTransferSave(StockTransferReq req)
         {
             return await _app.StockTransferSave(req);
         }
@@ -89,6 +89,17 @@ namespace IDC.WebApi.Controllers.PurchaseOrder
         public async Task<string> Approval(ApprovalReq req)
         {
             return await _app.Approval(req);
+        }
+
+        /// <summary>
+        /// 查询转储申请单审批结果
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<TableData> GetStockTransferResult(string req)
+        {
+            return await _app.GetStockTransferResult(req);
         }
     }
 }
