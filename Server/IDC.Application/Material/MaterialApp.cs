@@ -30,9 +30,9 @@ namespace IDC.Application.Material
             }
             if (!string.IsNullOrWhiteSpace(req.EndTime))
             {
-                sql += " and a.UpdateDate < @EndTime"; Parameters.Add("EndTime", DateTime.Parse(req.EndTime).AddDays(1));
+                sql += " and a.UpdateDate <= @EndTime"; Parameters.Add("EndTime", req.EndTime);
             }
-            result.Count = (await _repositoryBase.FindAsync<crm_ocrd>(sql, Parameters)).Count();
+            result.Count = (await _repositoryBase.FindAsync<store_oitm>(sql, Parameters)).Count();
             Parameters.Add("Start", req.limit * (req.page - 1));
             Parameters.Add("End", req.limit);
             sql += " limit @Start,@End";
