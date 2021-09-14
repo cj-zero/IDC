@@ -380,15 +380,9 @@ namespace IDC.Application.PurchaseOrder
             var result = new TableData();
             try
             {
-                //var job_id_list = "1,2";
-                //foreach (var item in list)
-                //{
-                //    job_id_list = job_id_list + "," + item;
-                //}
                 StringBuilder sql = new StringBuilder();
                 sql.AppendFormat(@"select job_id,job_state from wfa_job where job_id in ({0})", list);
-                var Parameters = new DynamicParameters();
-                var baseUserInfo = (await _repositoryBase.FindAsync<base_user>(sql.ToString(), null)).FirstOrDefault();
+                var baseUserInfo = (await _repositoryBase.FindAsync<base_user>(sql.ToString(), null)).ToList();
                 result.Data = baseUserInfo;
             }
             catch (Exception e)
