@@ -381,7 +381,7 @@ namespace IDC.Application.PurchaseOrder
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.AppendFormat(@"select job_id,job_state from wfa_job where job_id in ({0})", list);
+                sql.AppendFormat(@"select job_id,job_state,sync_stat from wfa_job where job_id in ({0})", list);
                 var res = (await _repositoryBase.FindAsync<base_user>(sql.ToString(), null)).ToList();
                 result.Data = res;
             }
