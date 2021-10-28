@@ -33,11 +33,11 @@ namespace IDC.Application.Production
             if (!string.IsNullOrWhiteSpace(request.StartDate))
             {
                 sql.Append(" and UpdateDate >= @StartDate");
-                Parameters.Add("@StartDate",DateTime.Parse(request.StartDate).Date);
+                Parameters.Add("@StartDate", request.StartDate);
             }
             if (!string.IsNullOrWhiteSpace(request.EndDate))
             {
-                sql.Append(" and UpdateDate <= @EndDate");
+                sql.Append(" and UpdateDate < @EndDate");
                 Parameters.Add("@EndDate", request.EndDate);
             }
             sql.Append(" limit @Start,@End");
@@ -82,11 +82,11 @@ namespace IDC.Application.Production
             if (!string.IsNullOrWhiteSpace(request.StartDate))
             {
                 sql.Append(" and b.UpdateDate >= @StartDate");
-                Parameters.Add("@StartDate", DateTime.Parse(request.StartDate).Date);
+                Parameters.Add("@StartDate", request.StartDate);
             }
             if (!string.IsNullOrWhiteSpace(request.EndDate))
             {
-                sql.Append(" and b.UpdateDate <= @EndDate");
+                sql.Append(" and b.UpdateDate < @EndDate");
                 Parameters.Add("@EndDate", request.EndDate);
             }
             sql.Append(" limit @Start,@End");
