@@ -19,5 +19,9 @@ namespace IDC.Application.Customer.Request
         /// 结束时间
         /// </summary>
         public string EndTime { get; set; }
+        /// <summary>
+        /// 客户名称
+        /// </summary>
+        public string CardName { get; set; }
     }
 }

@@ -45,6 +45,10 @@ namespace IDC.Application.Customer
             {
                 sql += " and upd_dt <= @EndTime"; Parameters.Add("EndTime", req.EndTime);
             }
+            if (!string.IsNullOrWhiteSpace(req.CardName))
+            {
+                sql += $" and CardName  like '%{req.CardName}%' "; //Parameters.Add("CardName", req.CardName);
+            }
             result.Count = (await _repositoryBase.FindAsync<crm_ocrd>(sql, Parameters)).Count();
             Parameters.Add("Start", req.limit * (req.page-1));
             Parameters.Add("End", req.limit);
