@@ -28,5 +28,49 @@ namespace IDC.WebApi.Controllers.Material
         {
             return await _app.GetMaterialList(req);
         }
+
+        /// <summary>
+        /// 根据设备guid获取中位机软件版本
+        /// </summary>
+        /// <param name="guid">设备guid</param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<TableData> GetZWJSoftwareVersion([FromQuery] string guid)
+        {
+            var result = new TableData();
+            try
+            {
+                result = await _app.GetZWJSoftwareVersion(guid);
+            }
+            catch (Exception ex)
+            {
+                result.Code = 500;
+                result.Message = ex.InnerException?.Message ?? ex.Message;
+            }
+
+            return result;
+        }
+        
+        /// <summary>
+        /// 根据设备guid获取下位机软件版本
+        /// </summary>
+        /// <param name="guid">设备guid</param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<TableData> GetXWJSoftwareVersion([FromQuery] string guid)
+        {
+            var result = new TableData();
+            try
+            {
+                result = await _app.GetXWJSoftwareVersion(guid);
+            }
+            catch(Exception ex)
+            {
+                result.Code = 500;
+                result.Message = ex.InnerException?.Message ?? ex.Message;
+            }
+
+            return result;
+        }
     }
 }
