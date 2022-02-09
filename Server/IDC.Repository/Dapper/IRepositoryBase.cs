@@ -51,11 +51,6 @@ namespace IDC.Repository.Dapper
         dynamic Detail<T>(string selectSql, object param = null) where T : class;//查询单个数据
         Task<IEnumerable<T>> GetAsync<T>(string selectSql, DynamicParameters entity = null) where T : class;//异步查询列表
         Task<dynamic> DetailAsync<T>(string selectSql, object param = null) where T : class;//异步查询单个数据
-
-        IEnumerable<T> Query<T>(string sql, DynamicParameters parameters) where T : class;
-        Task<IEnumerable<T>> QueryAsync<T>(string sql, DynamicParameters parameters) where T : class;
-        public T QueryFirst<T>(string sql, DynamicParameters parameters) where T : class;
-        Task<T> QueryFirstAsync<T>(string sql, DynamicParameters parameters) where T : class;
         #endregion
         #region 事务
         int ExecuteTransaction<T>(string[] sqlarr) where T : class;

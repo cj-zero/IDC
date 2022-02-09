@@ -199,29 +199,5 @@ namespace IDC.Repository.Dapper
             } 
         }
 
-        public IEnumerable<T> Query<T>(string sql, DynamicParameters parameters) where T : class
-        {
-            using var _db = DbConnection<T>();
-            return _db.Query<T>(sql, parameters);
-        }
-
-        public Task<IEnumerable<T>> QueryAsync<T>(string sql, DynamicParameters parameters) where T : class
-        {
-            using var _db = DbConnection<T>();
-            return _db.QueryAsync<T>(sql, parameters);
-        }
-
-        public T QueryFirst<T>(string sql, DynamicParameters parameters) where T : class
-        {
-            using var _db = DbConnection<T>();
-            return _db.QueryFirstOrDefault<T>(sql, parameters);
-        }
-
-        public Task<T> QueryFirstAsync<T>(string sql, DynamicParameters parameters) where T : class
-        {
-            using var _db = DbConnection<T>();
-            return _db.QueryFirstOrDefaultAsync<T>(sql, parameters);
-        }
-
     }
 }
