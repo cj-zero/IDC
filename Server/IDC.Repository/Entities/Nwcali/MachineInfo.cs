@@ -15,11 +15,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace IDC.Repository.Entities.Nwcali
-{ 
+{
     /// <summary>
-    /// 
-    /// </summary>
-[ConnectionString("Nsap4NwcaliDbContext", "Nsap4NwcaliDbContext")]
+	/// 
+	/// </summary>
+    [ConnectionString("Nsap4NwcaliDbContext", "Nsap4NwcaliDbContext")]
     public partial class MachineInfo 
     {
         public MachineInfo()
