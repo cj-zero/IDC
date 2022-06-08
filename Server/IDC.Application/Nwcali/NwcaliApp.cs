@@ -2,7 +2,7 @@
 using IDC.Application.SSO;
 using IDC.Infrastructure.Returned;
 using IDC.Repository.Dapper;
-using OpenAuth.Repository.Domain;
+using IDC.Repository.Entities.Nwcali;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,11 +29,17 @@ namespace IDC.Application.Nwcali
             result.Data = false;
             try
             {
-                var sql = $"select * from machineinfo where Guid='{guid}' and `Status`=1";
-                var query = (await _repositoryBase.FindAsync<MachineInfo>(sql, null)).ToList();
-                if (query != null && query.Count > 0)
+                //下位机最新的烤机环境下烤机记录
+                var sql = $"select EdgeGuid,SrvGuid,DevUid,LowGuid from devicetestlog where LowGuid='{guid}' order by id desc limit 1";
+                var query = (await _repositoryBase.FindAsync<DeviceTestLog>(sql, null)).Select(c=>new  {c.EdgeGuid,c.SrvGuid,c.DevUid,c.LowGuid }).FirstOrDefault();
+                if (query != null)
                 {
-                    result.Data = true;
+                    //通道烤机结果
+                    var channel = $"select Status,TaskStatus,TaskErrCount from devicetestlog where EdgeGuid='{query.EdgeGuid}' and SrvGuid='{query.SrvGuid}' and DevUid={query.DevUid} and LowGuid='{query.LowGuid}'";
+                    var channelQuery = (await _repositoryBase.FindAsync<DeviceTestLog>(channel, null)).Select(c => new { c.Status, c.TaskStatus, c.TaskErrCount }).ToList();
+                    //状态为已完成，检测结果为完成，错误数量为0
+                    var res = channelQuery.All(c => c.Status == -1 && c.TaskStatus == 2 && c.TaskErrCount == 0);
+                    result.Data = res;
                 }
             }
             catch (Exception e)

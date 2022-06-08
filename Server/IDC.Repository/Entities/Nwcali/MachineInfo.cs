@@ -14,7 +14,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
-namespace OpenAuth.Repository.Domain
+namespace IDC.Repository.Entities.Nwcali
 {
     /// <summary>
 	/// 
