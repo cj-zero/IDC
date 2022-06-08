@@ -103,23 +103,6 @@ namespace IDC.Application.Material
         }
 
         /// <summary>
-        /// 根据guid获取下位机程序的版本信息
-        /// </summary>
-        /// <param name="guid"></param>
-        /// <returns></returns>
-        public async Task<TableData> GetXWJVersion_CN(string guid)
-        {
-            var result = new TableData();
-
-            result.Data = new
-            {
-                lang = $"{Version.CN}"
-            };
-
-            return result;
-        }
-
-        /// <summary>
         /// 根据设备guid获取中位机软件版本
         /// </summary>
         /// <param name="guid"></param>

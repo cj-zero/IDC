@@ -30,7 +30,7 @@ namespace IDC.WebApi.Controllers.Material
         }
 
         /// <summary>
-        /// 根据guid获取下位机程序的版本信息,返回英文
+        /// 根据guid获取下位机程序的版本信息
         /// </summary>
         /// <param name="guid"></param>
         /// <returns></returns>
@@ -42,29 +42,6 @@ namespace IDC.WebApi.Controllers.Material
             try
             {
                 result = await _app.GetXWJVersion(guid);
-            }
-            catch (Exception ex)
-            {
-                result.Code = 500;
-                result.Message = ex.InnerException?.Message ?? ex.Message;
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// 根据guid获取下位机程序的版本信息,返回中文
-        /// </summary>
-        /// <param name="guid"></param>
-        /// <returns></returns>
-        [HttpGet]
-        public async Task<TableData> GetXWJVersion_CN([FromQuery] string guid)
-        {
-            var result = new TableData();
-
-            try
-            {
-                result = await _app.GetXWJVersion_CN(guid);
             }
             catch (Exception ex)
             {
