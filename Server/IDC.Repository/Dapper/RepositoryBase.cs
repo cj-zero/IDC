@@ -95,7 +95,10 @@ namespace IDC.Repository.Dapper
                                 break;
                         }
                         dbConnection = new ConnectionFactory(databaseType, connstring).CreateConnection();
-                        dbConnections.TryAdd(values[1].ToString(), dbConnection);
+                        if (Convert.ToInt32(values[2]) != 0)//SqlServer链接不加入集合,解决using释放后链接字符串为空 ConnectionString 属性尚未初始化
+                        {
+                            dbConnections.TryAdd(values[1].ToString(), dbConnection);
+                        }
                         return dbConnection;
                     }
                 }
