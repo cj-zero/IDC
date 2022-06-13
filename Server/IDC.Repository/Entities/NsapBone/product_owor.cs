@@ -55,6 +55,7 @@ namespace IDC.Repository.Entities.NsapBone
           this.CDocEntry= string.Empty;
           this.txtitemName= string.Empty;
           this.U_TZVer_UpdTime= DateTime.Now;
+          this.DocEntry = 0;
         }
 
         public int sbo_id { get; set; }
