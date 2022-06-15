@@ -37,7 +37,6 @@ namespace IDC.Application.WMS
             string eMesg = "";
             string docNum = string.Empty;
             TableData result= new TableData();
-            /*
             try
             {
                 if (obj.ProductReceiptDetailReqs != null)//存在物料明细
@@ -120,8 +119,8 @@ namespace IDC.Application.WMS
                 result.Code= eCode;
                 result.Message = eMesg;
             }
-            */
-            eCode = 201;docNum = "22";
+            //*/
+            //eCode = 201;docNum = "26";
             if (eCode == 201)//SAP同步成功
             {
                 try
@@ -297,17 +296,49 @@ namespace IDC.Application.WMS
                         ActBaseEnt, ActBaseLn, ActBasSubL, AllocateTp, AllocatEnt, AllocateLn, sbo_id) VALUES (@LogEntry, @TransId, @ItemCode, @ItemName, @ManagedBy, @DocEntry, 
                         @DocLine, @DocType, @DocNum, BaseEntry, @BaseLine, @BaseType, @ApplyEntry, @ApplyLine, @ApplyType, @DocDate, @CardCode, @CardName, @DocQty, @StockQty, 
                         @DefinedQty, @StockEff, @CreateDate, @LocType, @LocCode, @AppDocNum, @VersionNum, @Transfered, @Instance, @SubLineNum, @BSubLineNo, @AppSubLine, @ActBaseTp, 
-                        @ActBaseEnt, @ActBaseLn, @ActBasSubL, @AllocateTp, @AllocatEnt, @AllocateLn, @sbo_id);";
+                        @ActBaseEnt, @ActBaseLn, @ActBasSubL, @AllocateTp, @AllocatEnt, @AllocateLn, @sbo_id)
+                        ON DUPLICATE KEY UPDATE sbo_id=VALUES(sbo_id),LogEntry=VALUES(LogEntry),TransId=VALUES(TransId),ItemCode=VALUES(ItemCode),ItemName=VALUES(ItemName),ManagedBy=VALUES(ManagedBy),DocEntry=VALUES(DocEntry),
+                        DocLine=VALUES(DocLine),DocType=VALUES(DocType),DocNum=VALUES(DocNum),BaseEntry=VALUES(BaseEntry),BaseLine=VALUES(BaseLine),BaseType=VALUES(BaseType),ApplyEntry=VALUES(ApplyEntry),
+                        ApplyLine=VALUES(ApplyLine),ApplyType=VALUES(ApplyType),DocDate=VALUES(DocDate),CardCode=VALUES(CardCode),CardName=VALUES(CardName),DocQty=VALUES(DocQty),StockQty=VALUES(StockQty),
+                        DefinedQty=VALUES(DefinedQty),StockEff=VALUES(StockEff),CreateDate=VALUES(CreateDate),LocType=VALUES(LocType),LocCode=VALUES(LocCode),AppDocNum=VALUES(AppDocNum),VersionNum=VALUES(VersionNum),
+                        Transfered=VALUES(Transfered),Instance=VALUES(Instance),SubLineNum=VALUES(SubLineNum),BSubLineNo=VALUES(BSubLineNo),AppSubLine=VALUES(AppSubLine),ActBaseTp=VALUES(ActBaseTp),ActBaseEnt=VALUES(ActBaseEnt),
+                        ActBaseLn=VALUES(ActBaseLn),ActBasSubL=VALUES(ActBasSubL),AllocateTp=VALUES(AllocateTp),AllocatEnt=VALUES(AllocatEnt),AllocateLn=VALUES(AllocateLn);";
                 await _repositoryBase.BatchAddAsync<store_oitl>(addoitl, theoitl);
                 //detail
                 var itl1sql = @$"select a.* from itl1 a  left join oitl  b on a.LogEntry=b.LogEntry where b.docentry={docNum} and b.doctype=59";
                 var itl1Model = await _repositoryBase.GetAsync<ITL1>(itl1sql);
                 List<store_itl1> utl1List = itl1Model.MapToList<store_itl1>();
-                string additl1sql = @$"INSERT INTO store_itl1(LogEntry, ItemCode, SysNumber, Quantity, AllocQty, MdAbsEntry, 
-                        ReleaseQty, PickedQty, sbo_id) VALUES (@LogEntry, @ItemCode, @SysNumber, @Quantity, @AllocQty, @MdAbsEntry, 
-                        @ReleaseQty, @PickedQty, @sbo_id);";
+                utl1List.ForEach(s => s.sbo_id = Define.Sbo_Id);
+                string additl1sql = @"INSERT INTO store_itl1(LogEntry, ItemCode, SysNumber, Quantity, AllocQty, MdAbsEntry,ReleaseQty, PickedQty, sbo_id) VALUES 
+                        (@LogEntry, @ItemCode, @SysNumber, @Quantity, @AllocQty, @MdAbsEntry, @ReleaseQty, @PickedQty, @sbo_id)
+                         ON Duplicate KEY UPDATE sbo_id=VALUES(sbo_id),LogEntry=VALUES(LogEntry),ItemCode=VALUES(ItemCode),SysNumber=VALUES(SysNumber),Quantity=VALUES(Quantity),AllocQty=VALUES(AllocQty),MdAbsEntry=VALUES(MdAbsEntry),ReleaseQty=VALUES(ReleaseQty),PickedQty=VALUES(PickedQty);";
                 await _repositoryBase.BatchAddAsync<store_itl1>(additl1sql, utl1List);
+                //osrn
+                List<store_osrn> osrnList = new List<store_osrn>();
+                if (utl1List.Count > 0)
+                {
+                    var disitlList = utl1List.GroupBy(g => new { g.sbo_id, g.ItemCode, g.SysNumber }).Select(s => s.First());
+                    foreach (store_itl1 theitl1 in disitlList)
+                    {
+                        string osrnstr = string.Format(@"select ItemCode,SysNumber,DistNumber,MnfSerial,LotNumber,ExpDate,MnfDate,InDate,GrntStart,GrntExp,CreateDate,Location,Status,Notes,DataSource,Transfered,Instance,AbsEntry,ObjType,itemName,LogInstanc,UpdateDate from OSRN WHERE ItemCode='{0}' AND SysNumber={1}", theitl1.ItemCode.Replace("'", "''"), theitl1.SysNumber);
+                        var osrnModel = (await _repositoryBase.GetAsync<OSRN>(osrnstr)).FirstOrDefault();
+                        if (osrnModel != null)
+                        {
+                            store_osrn temposrn = osrnModel.MapTo<store_osrn>();
+                            temposrn.sbo_id = Define.Sbo_Id;
+                            osrnList.Add(temposrn);
+                        }
+                    }
+                    if (osrnList.Count > 0)
+                    {
+                        string srnUpdSq = @"INSERT INTO store_osrn (sbo_id,ItemCode,SysNumber,DistNumber,MnfSerial,LotNumber,ExpDate,MnfDate,InDate,GrntStart,GrntExp,CreateDate,Location,Status,Notes,DataSource,Transfered,Instance,AbsEntry,ObjType,itemName,LogInstanc,UpdateDate) VALUES (
+                                @sbo_id, @ItemCode, @SysNumber, @DistNumber, @MnfSerial, @LotNumber, @ExpDate, @MnfDate, @InDate, @GrntStart, @GrntExp, @CreateDate, @Location, @Status, @Notes, @DataSource, @Transfered, @Instance, @AbsEntry, @ObjType, @itemName, @LogInstanc, @UpdateDate) 
+                                ON DUPLICATE KEY UPDATE sbo_id=VALUES(sbo_id),ItemCode=VALUES(ItemCode),SysNumber=VALUES(SysNumber),DistNumber=VALUES(DistNumber),MnfSerial=VALUES(MnfSerial),LotNumber=VALUES(LotNumber),ExpDate=VALUES(ExpDate),MnfDate=VALUES(MnfDate),InDate=VALUES(InDate),GrntStart=VALUES(GrntStart),
+                                GrntExp=VALUES(GrntExp),CreateDate=VALUES(CreateDate),Location=VALUES(Location),Status=VALUES(Status),Notes=VALUES(Notes),DataSource=VALUES(DataSource),Transfered=VALUES(Transfered),Instance=VALUES(Instance),AbsEntry=VALUES(AbsEntry),ObjType=VALUES(ObjType),itemName=VALUES(itemName),LogInstanc=VALUES(LogInstanc),UpdateDate=VALUES(UpdateDate);";
+                        await _repositoryBase.BatchAddAsync<store_osrn>(srnUpdSq, osrnList);
 
+                    }
+                }
                 #endregion
                 updateStr.Clear();
                 #region 修改生产订单
@@ -343,6 +374,11 @@ namespace IDC.Application.WMS
                 #endregion
 
                 result.Code = 200;
+                result.Data = new
+                {
+                    DocEntry = docNum,
+                    SerialList= osrnList.Select(s=>new { s.ItemCode, s.SysNumber,s.MnfSerial,s.DistNumber}).ToList()
+                };
                 result.Message = "SAP同步成功;ERP同步成功";
             }
             catch (Exception ex)
