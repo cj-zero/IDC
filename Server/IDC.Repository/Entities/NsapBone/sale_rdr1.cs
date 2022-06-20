@@ -158,5 +158,28 @@ namespace IDC.Repository.Entities.NsapBone
         /// </summary>
         [Description("")]
         public string unitMsr { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        public string PriceAfVAT { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        public string INMPrice { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        [Description("")]
+        public string InvntSttus { get; set; }
+        [Description("")]
+        public string TargetType { get; set; }
+        [Description("")]
+        public string TrgetEntry { get; set; }
+        [Description("")]
+        public string DiscPrcnt { get; set; }
+        [Description("")]
+        public string TotalFrgn { get; set; }
     }
 }

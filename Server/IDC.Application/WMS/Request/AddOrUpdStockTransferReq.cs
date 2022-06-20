@@ -81,6 +81,12 @@ namespace IDC.Application.WMS.Request
         /// </summary>
 
         public string U_YGMD { get; set; }
+
+        /// <summary>
+        /// 业务伙伴参考编号
+        /// </summary>
+        public string NumAtCard { get; set; }
+
         /// <summary>
         /// 行明细
         /// </summary>

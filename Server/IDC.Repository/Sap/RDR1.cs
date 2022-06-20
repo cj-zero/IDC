@@ -1668,5 +1668,11 @@ namespace IDC.Repository.Entities.Sap
         /// </summary>
         [Description("")]
         public string U_RelDoc { get; set; }
+        [Description("")]
+        public string DocEntry { get; set; }
+        [Description("")]
+        public string LineNum { get; set; }
+
+
     }
 }

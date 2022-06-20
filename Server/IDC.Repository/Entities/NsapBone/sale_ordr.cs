@@ -183,5 +183,17 @@ namespace IDC.Repository.Entities.NsapBone
         /// </summary>
         [Description("")]
         public int? U_ShipStatus { get; set; }
+        [Description("")]
+        public string InvntSttus { get; set; }
+        [Description("")]
+        public string VatSum { get; set; }
+        [Description("")]
+        public string DiscPrcnt { get; set; }
+        [Description("")]
+        public string DiscSum { get; set; }
+        [Description("")]
+        public string PaidToDate { get; set; }
+        [Description("")]
+        public string GrosProfit { get; set; }
     }
 }
