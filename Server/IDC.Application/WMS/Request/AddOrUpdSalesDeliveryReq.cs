@@ -59,25 +59,11 @@ namespace IDC.Application.WMS.Request
         public string Address2 { get; set; }
 
         /// <summary>
-        /// 税额总计
-        /// </summary>
-       
-        public string VatSum { get; set; }
-        /// <summary>
         /// 凭证折扣率
         /// </summary>
        
         public string DiscPrcnt { get; set; }
-        /// <summary>
-        /// 总计折扣
-        /// </summary>
        
-        public string DiscSum { get; set; }
-        /// <summary>
-        /// 总计折扣外币
-        /// </summary>
-       
-        public string DiscSumFC { get; set; }
         /// <summary>
         /// 凭证货币
         /// </summary>
@@ -94,21 +80,13 @@ namespace IDC.Application.WMS.Request
         /// </summary>
        
         public string DocTotal { get; set; }
-        /// <summary>
-        /// 凭证总计外币
-        /// </summary>
-       
-        public string DocTotalFC { get; set; }
+        
         /// <summary>
         /// 备注
         /// </summary>
        
         public string Comments { get; set; }
-        /// <summary>
-        /// 审核备注
-        /// </summary>
        
-        public string Remark { get; set; }
         /// <summary>
         /// 付款条款代码
         /// </summary>
@@ -126,11 +104,7 @@ namespace IDC.Application.WMS.Request
         /// </summary>
        
         public string PartSupply { get; set; }
-        /// <summary>
-        /// 是否通过银行（Y代表Yes,N代表No,默认值为Y）
-        /// </summary>
-       
-        public string IsBank { get; set; }
+        
         /// <summary>
         /// 联系人
         /// </summary>
@@ -187,7 +161,6 @@ namespace IDC.Application.WMS.Request
         /// </summary>
         public string OwnerCode { get; set; }
 
-        public string BeforeDiscSum { get; set; }
         /// <summary>
         /// 发票类别
         /// </summary>
@@ -239,11 +212,7 @@ namespace IDC.Application.WMS.Request
         /// </summary>
        
         public string PrepaData { get; set; }
-        /// <summary>
-        /// 自定义字段
-        /// </summary>
-       
-        public string CustomFields { get; set; }
+        
         /// <summary>
         /// WhsCode
         /// </summary>
@@ -318,11 +287,7 @@ namespace IDC.Application.WMS.Request
         /// </summary>
         
         public string VatGroup { get; set; }
-        /// <summary>
-        /// 毛价
-        /// </summary>
         
-        public string PriceAfVAT { get; set; }
         /// <summary>
         /// 行总计
         /// </summary>
@@ -330,91 +295,11 @@ namespace IDC.Application.WMS.Request
         public string LineTotal { get; set; }
 
         /// <summary>
-        /// 以外币计的行总计
-        /// </summary>
-        
-        public string TotalFrgn { get; set; }
-
-        /// <summary>
-        /// 销售提成比例
-        /// </summary>
-        
-        public string U_XSTCBL { get; set; }
-        /// <summary>
-        /// 销售提成金额
-        /// </summary>
-        
-        public string U_XSTCJE { get; set; }
-
-        /// <summary>
-        /// 补助金额
-        /// </summary>
-        
-        public string U_BZJE { get; set; }
-        /// <summary>
-        /// 补助后金额
-        /// </summary>
-        
-        public string U_BZHJE { get; set; }
-        /// <summary>
-        /// 补助后金额
-        /// </summary>
-        
-        public string Remarks { get; set; }
-        /// <summary>
-        /// 研发提成金额
-        /// </summary>
-        
-        public string U_YFTCJE { get; set; }
-        /// <summary>
-        /// 生产提成金额
-        /// </summary>
-        
-        public string U_SCTCJE { get; set; }
-
-        /// <summary>
-        /// 物料成本
-        /// </summary>
-        
-        public string StockPrice { get; set; }
-
-        /// <summary>
-        /// 业务费
-        /// </summary>
-        
-        public string U_YWF { get; set; }
-
-        /// <summary>
-        /// 服务费
-        /// </summary>
-        
-        public string U_FWF { get; set; }
-
-        /// <summary>
         /// 仓库代码
         /// </summary>
         
         public string WhsCode { get; set; }
-        /// <summary>
-        /// 库存量
-        /// </summary>
         
-        public string OnHand { get; set; }
-
-        /// <summary>
-        /// 每行税收百分比
-        /// </summary>
-        
-        public string VatPrcnt { get; set; }
-
-        
-        public string U_TDS { get; set; }
-        
-        public string U_DL { get; set; }
-        
-        public string U_DY { get; set; }
-
-
         /// <summary>
         /// 目标凭证类型(-1,0,13,16,203,默认值为-1)
         /// </summary>
@@ -456,113 +341,9 @@ namespace IDC.Application.WMS.Request
         /// </summary>
         
         public string U_PDXX { get; set; }
-        /// <summary>
-        /// 配电选项
-        /// </summary>
         
-        public string Lowest { get; set; }
-        /// <summary>
-        /// 配电选项
-        /// </summary>
-        
-        public string ConfigLowest { get; set; }
-        /// <summary>
-        /// 配电选项
-        /// </summary>
-        
-
-        public string Deductible { get; set; }
-        
-        public string WattPrice { get; set; }
-        
-        public string IsExistMo { get; set; }
-        // public string Remarks { get; set; }
-
-        
-        public string ItemCfgId { get; set; }
-        
-        public string IsCommited { get; set; }
-
-        
-        public string OnOrder { get; set; }
-        
-        public string OnAvailable { get; set; }
-        
-        public string Weight { get; set; }
-        
-        public string Volume { get; set; }
-        
-        public string U_JGF { get; set; }
-        
-        public string U_JGF1 { get; set; }
-        
-        public string U_YFCB { get; set; }
-        //U_SHJSDJ  U_SHJSJ   U_SHTC
-        public string U_SHJSDJ { get; set; }
-        
-        public string U_SHJSJ { get; set; }
-        
-        public string U_SHTC { get; set; }
-        
-        public string U_XSTC { get; set; }
-        
-        public string U_YFTC_CCDC { get; set; }
-        
-        public string U_YFTC_EVT { get; set; }
-        
-        public string U_YFTC_4 { get; set; }
-        
-        public string QryGroup1 { get; set; }
-        
-        public string QryGroup2 { get; set; }
-        
-        public string _QryGroup3 { get; set; }
-        
-        public string Available { get; set; }
-        
-        public string MinLevel { get; set; }
-        
-        public string PurPackUn { get; set; }
-        
-        public string U_KJFY { get; set; }//扣减费用
-                                          //  
-                                          //  public string U_BZJE { get; set; }//补助金额(已存在)
-        
-        public string QryGroup8 { get; set; }//3008n
-        
-        public string QryGroup9 { get; set; }//9系列
-        
-        public string QryGroup10 { get; set; }//ES系列
-        
-        public string U_YFTC_3008n { get; set; }//3008n
-        
-        public string U_YFTC_9 { get; set; }//9系列
-        
-        public string U_YFTC_ES { get; set; }//ES系列
-        
-        public string SumQuantity { get; set; }//出货数量(新增)
-        
-        public string DeliveredQuantity { get; set; }//交货数量(取代SumQuantity)
-
-        
-        public string U_RelDoc { get; set; }//采购物料对应的订单情况
-        
-        public string U_RelQty { get; set; }//采购物料对应的订单数量总计
-        
-        public string U_ZS { get; set; }//配置类型
-        
+ 
         public IList<BillSerialNumberChooseItem> ChoosedSerialNumberList { get; set; }
-
-        
-        public string LineNum { get; set; }
-
-        
-        public string LineStatus { get; set; }
-        /// <summary>
-        /// 未清数量
-        /// </summary>
-        
-        public string OpenQty { get; set; }
         
     }
 }
