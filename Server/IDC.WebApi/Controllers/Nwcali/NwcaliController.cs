@@ -23,10 +23,25 @@ namespace IDC.WebApi.Controllers.Nwcali
             _app = app;
         }
 
+        /// <summary>
+        /// 是否通过烤机
+        /// </summary>
+        /// <param name="guid"></param>
+        /// <returns></returns>
         [HttpGet]
         public async Task<TableData> IsPass(string guid)
         {
             return await _app.IsPass(guid);
+        }
+        /// <summary>
+        /// 是否通过校准
+        /// </summary>
+        /// <param name="wo"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<TableData> CheckCalibration(string wo)
+        {
+            return await _app.CheckCalibration(wo);
         }
     }
 }
