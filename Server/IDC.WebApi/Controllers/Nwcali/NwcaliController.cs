@@ -43,5 +43,17 @@ namespace IDC.WebApi.Controllers.Nwcali
         {
             return await _app.CheckCalibration(wo);
         }
+
+        /// <summary>
+        /// GUID是否和烤机绑定的数据一致
+        /// </summary>
+        /// <param name="wo"></param>
+        /// <param name="guid"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<TableData> CheckBinding(string wo, string guid)
+        {
+            return await _app.CheckBinding(wo, guid);
+        }
     }
 }
