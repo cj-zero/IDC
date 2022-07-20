@@ -140,32 +140,39 @@ namespace IDC.Application.Nwcali
             TableData result = new TableData();
             CheckResp bind = new CheckResp() { Result = false, Message = "GUID不属于订单WO" };
             CheckResp kaoji = new CheckResp() { Result = false };
-
-            //wo最新的烤机环境下烤机记录
-            var sql = $"select EdgeGuid,SrvGuid,DevUid,LowGuid,UnitId from devicetestlog where GeneratorCode='{wo}' order by id desc limit 1";
-            var query = (await _repositoryBase.FindAsync<DeviceTestLog>(sql, null)).Select(c => new { c.EdgeGuid, c.SrvGuid, c.DevUid, c.LowGuid, c.UnitId }).FirstOrDefault();
-            if (query != null)
+            if (wo.StartsWith("WO"))
             {
-                //最新环境下 最新通道测试记录
-                var guidSql = $@"select LowGuid from devicetestlog where id in(
+                //wo最新的烤机环境下烤机记录
+                var sql = $"select EdgeGuid,SrvGuid,DevUid,LowGuid,UnitId from devicetestlog where GeneratorCode='{wo}' order by id desc limit 1";
+                var query = (await _repositoryBase.FindAsync<DeviceTestLog>(sql, null)).Select(c => new { c.EdgeGuid, c.SrvGuid, c.DevUid, c.LowGuid, c.UnitId }).FirstOrDefault();
+                if (query != null)
+                {
+                    //最新环境下 最新通道测试记录
+                    var guidSql = $@"select LowGuid from devicetestlog where id in(
                                 select MAX(Id) id from devicetestlog where EdgeGuid='{query.EdgeGuid}' and SrvGuid='{query.SrvGuid}' and DevUid={query.DevUid}
                                 group by EdgeGuid,SrvGuid,DevUid,UnitId,ChlId) AND GeneratorCode='{wo}'
                                 group by LowGuid";
-                var guidList = (await _repositoryBase.FindAsync<DeviceTestLog>(sql, null)).Select(c => c.LowGuid).ToList();
-                if (guidList.Count > 0)
-                {
-                    //wo包含此guid
-                    if (guidList.Contains(guid))
+                    var guidList = (await _repositoryBase.FindAsync<DeviceTestLog>(sql, null)).Select(c => c.LowGuid).ToList();
+                    if (guidList.Count > 0)
                     {
-                        bind.Result = true;
-                        bind.Message = "ok";
-                        kaoji = await BakingMachine(guid);
+                        //wo包含此guid
+                        if (guidList.Contains(guid))
+                        {
+                            bind.Result = true;
+                            bind.Message = "ok";
+                            kaoji = await BakingMachine(guid);
+                        }
                     }
+                }
+                else
+                {
+                    bind.Message = "WO暂无绑定记录";
                 }
             }
             else
             {
-                bind.Message = "WO暂无绑定记录";
+                bind = new CheckResp() { Result = true };
+                kaoji = new CheckResp() { Result = true };
             }
             result.Data = new { Binding = bind, BakingMachine = kaoji };
             return result;
