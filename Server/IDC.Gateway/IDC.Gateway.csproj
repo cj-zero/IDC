@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MySql.Data" Version="8.0.29" />
     <PackageReference Include="Ocelot" Version="17.0.0" />
     <PackageReference Include="Ocelot.Cache.CacheManager" Version="17.0.0" />
     <PackageReference Include="Ocelot.Provider.Polly" Version="17.0.0" />

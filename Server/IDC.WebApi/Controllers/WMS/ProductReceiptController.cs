@@ -34,7 +34,7 @@ namespace IDC.WebApi.Controllers.WMS
             var result = new TableData();
             try
             {
-                result=await _productReceiptApp.ProductReceiptHandle(obj);
+                result = await _productReceiptApp.ProductReceiptHandle(obj);
 
             }
             catch (Exception ex)
