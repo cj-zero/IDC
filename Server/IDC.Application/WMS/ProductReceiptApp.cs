@@ -396,6 +396,45 @@ namespace IDC.Application.WMS
             return result;
         }
 
+        public async Task<TableData> ProductReceiptValidQty(int productNum)
+        {
+            TableData result = new TableData();
+            string strSqlOWOAR = string.Format("select ItemCode,PlannedQty,CmpltQty,RjctQty from owor where DocEntry={0}", productNum);
+            var OWORModel = (await _repositoryBase.FindAsync<OWOR>(strSqlOWOAR, null)).FirstOrDefault();
+            if (OWORModel != null)
+            {
+                var validQty = OWORModel.PlannedQty - OWORModel.CmpltQty - OWORModel.RjctQty;
+                if (validQty != null && validQty > 0)
+                {
+                    result.Code = 200;
+                    result.Data = new
+                    {
+                        DocEntry= productNum,
+                        ItemCode = OWORModel.ItemCode,
+                        ValidQty=validQty,
+                        PlannedQty= OWORModel.PlannedQty,
+                        CmpltQty= OWORModel.CmpltQty,
+                        RjctQty= OWORModel.RjctQty
+                    };
+                    result.Message = "订单还没完成收货，请按剩余数量收货";
+                }
+                else
+                {
+                    result.Code = 201;
+                    result.Data = new
+                    {
+                        DocEntry = productNum,
+                        ItemCode = OWORModel.ItemCode,
+                        ValidQty = validQty,
+                        PlannedQty = OWORModel.PlannedQty,
+                        CmpltQty = OWORModel.CmpltQty,
+                        RjctQty = OWORModel.RjctQty
+                    };
+                    result.Message = "订单已完成收货";
+                }
+            }
+            return result;
+        }
 
         public ProductReceiptApp(IRepositoryBase repositoryBase, Company oCompany, IAuth auth) : base(auth, repositoryBase)
         {

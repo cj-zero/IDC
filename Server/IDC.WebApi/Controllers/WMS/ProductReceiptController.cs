@@ -34,8 +34,8 @@ namespace IDC.WebApi.Controllers.WMS
             var result = new TableData();
             try
             {
-                result = await _productReceiptApp.ProductReceiptHandle(obj);
-
+                await _productReceiptApp.ProductReceiptHandle(obj);//
+                //result = await _productReceiptApp.ProductReceiptHandleERP3(obj.DocNum);
             }
             catch (Exception ex)
             {
@@ -44,6 +44,25 @@ namespace IDC.WebApi.Controllers.WMS
             }
             return result;
         }
-
+        /// <summary>
+        /// 获取生产订单可收货数量
+        /// </summary>
+        /// <param name="ProductNo">生产单号</param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<TableData> ProductReceiptValidQty(int ProductNo)
+        {
+            var result = new TableData();
+            try
+            {
+                result = await _productReceiptApp.ProductReceiptValidQty(ProductNo);
+            }
+            catch (Exception ex)
+            {
+                result.Code = 500;
+                result.Message = ex.Message;
+            }
+            return result;
+        }
     }
 }
