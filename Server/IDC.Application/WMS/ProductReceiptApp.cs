@@ -259,22 +259,25 @@ namespace IDC.Application.WMS
                         }
                         #endregion
                         #region wor detail
-                        string wordetailsql = string.Format(@"select w.ItemCode,w.WhsCode,w.OnHand,w.IsCommited,w.OnOrder FROM WOR1  w1 left outer join 
+                        if (theign.BaseEntry != null && theign.BaseEntry > 0)
+                        {
+                            string wordetailsql = string.Format(@"select w.ItemCode,w.WhsCode,w.OnHand,w.IsCommited,w.OnOrder FROM WOR1  w1 left outer join 
                                 oitw w on w.ItemCode=w1.ItemCode and w.WhsCode=w1.wareHouse where w1.DocEntry={0}", theign.BaseEntry);
-                        var wordetailobj = (await _repositoryBase.GetAsync<OITW>(wordetailsql, null)).ToList();
-                        foreach (var tdtl in wordetailobj)
-                        {
-                            updateStr.AppendFormat($@"update store_oitw set OnHand={tdtl.OnHand},IsCommited={tdtl.IsCommited},OnOrder={tdtl.OnOrder} where ItemCode='{tdtl.ItemCode.Replace("'", "''")}' and WhsCode='{tdtl.WhsCode}' and sbo_id={Define.Sbo_Id};");
-                            updateStr.AppendLine();
-                        }
-                        wordetailsql = string.Format(@"select i.ItemCode,i.OnHand,i.IsCommited,i.OnOrder,i.LastPurDat,i.LastPurPrc,i.LastPurCur,i.UpdateDate FROM WOR1 w1 left outer join 
+                            var wordetailobj = (await _repositoryBase.GetAsync<OITW>(wordetailsql, null)).ToList();
+                            foreach (var tdtl in wordetailobj)
+                            {
+                                updateStr.AppendFormat($@"update store_oitw set OnHand={tdtl.OnHand},IsCommited={tdtl.IsCommited},OnOrder={tdtl.OnOrder} where ItemCode='{tdtl.ItemCode.Replace("'", "''")}' and WhsCode='{tdtl.WhsCode}' and sbo_id={Define.Sbo_Id};");
+                                updateStr.AppendLine();
+                            }
+                            wordetailsql = string.Format(@"select i.ItemCode,i.OnHand,i.IsCommited,i.OnOrder,i.LastPurDat,i.LastPurPrc,i.LastPurCur,i.UpdateDate FROM WOR1 w1 left outer join 
                                 oitm i on i.ItemCode=w1.ItemCode where w1.DocEntry={0}", theign.BaseEntry);
-                        var wordetailobj1 = (await _repositoryBase.GetAsync<OITM>(wordetailsql, null)).ToList();
-                        foreach (var tdtl in wordetailobj1)
-                        {
-                            updateStr.AppendFormat($@"update store_oitm set OnHand={tdtl.OnHand},IsCommited={tdtl.IsCommited},OnOrder={tdtl.OnOrder},LastPurDat='{tdtl.LastPurDat}'
+                            var wordetailobj1 = (await _repositoryBase.GetAsync<OITM>(wordetailsql, null)).ToList();
+                            foreach (var tdtl in wordetailobj1)
+                            {
+                                updateStr.AppendFormat($@"update store_oitm set OnHand={tdtl.OnHand},IsCommited={tdtl.IsCommited},OnOrder={tdtl.OnOrder},LastPurDat='{tdtl.LastPurDat}'
                                 ,LastPurPrc={tdtl.LastPurPrc},LastPurCur='{tdtl.LastPurCur}',UpdateDate='{tdtl.UpdateDate}' where ItemCode='{tdtl.ItemCode.Replace("'", "''")}' and sbo_id={Define.Sbo_Id};");
-                            updateStr.AppendLine();
+                                updateStr.AppendLine();
+                            }
                         }
                         #endregion
                         if (updateStr.Length > 0)
@@ -345,32 +348,36 @@ namespace IDC.Application.WMS
                 var groupignList = (IGN1model.Where(w => w.BaseEntry != -1)).GroupBy(g => g.BaseEntry).Select(s => s.First());
                 foreach (var theign in groupignList)
                 {
-                    string strSqlOWOAR = string.Format("SELECT DocEntry,Status,Type,CmpltQty,RjctQty FROM  OWOR WHERE DocEntry={0}", theign.BaseEntry);
-                    var OWORModel = (await _repositoryBase.FindAsync<OWOR>(strSqlOWOAR, null)).FirstOrDefault();
-                    //product_owor theowor = OWORModel.MapTo<product_owor>();
-                    if (OWORModel != null)
+                    if (theign.BaseEntry != null && theign.BaseEntry > 0)
                     {
-                        updateStr.AppendFormat("UPDATE product_owor SET Status='{0}',Type='{1}',CmpltQty={2},RjctQty={3} WHERE sbo_id={4} AND DocEntry={5};", OWORModel.Status, OWORModel.Type, OWORModel.CmpltQty, OWORModel.RjctQty, Define.Sbo_Id, OWORModel.DocEntry);
-                        updateStr.AppendLine();
-                    };
-                    string strSqlwor1 = string.Format("SELECT DocEntry,LineNum,ItemCode,BaseQty,PlannedQty,IssuedQty,IssueType,wareHouse,VisOrder FROM WOR1 WHERE DocEntry={0}", theign.BaseEntry);
-                    var worModel = (await _repositoryBase.FindAsync<WOR1>(strSqlwor1, null)).ToList();
-                    //List<product_wor1> theworList = worModel.MapToList<product_wor1>();
-                    if (worModel.Count > 0)
-                    {
-                        foreach (var thewor1 in worModel)
+                        string strSqlOWOAR = string.Format("SELECT DocEntry,Status,Type,CmpltQty,RjctQty FROM  OWOR WHERE DocEntry={0}", theign.BaseEntry);
+                        var OWORModel = (await _repositoryBase.FindAsync<OWOR>(strSqlOWOAR, null)).FirstOrDefault();
+                        //product_owor theowor = OWORModel.MapTo<product_owor>();
+                        if (OWORModel != null)
                         {
-                            updateStr.AppendFormat("UPDATE product_wor1 SET BaseQty={3},PlannedQty={4},IssuedQty={5}  WHERE sbo_id={0} AND DocEntry={1} AND ItemCode='{2}';", Define.Sbo_Id, thewor1.DocEntry, thewor1.ItemCode.Replace("'", "''")
-                                , thewor1.BaseQty, thewor1.PlannedQty, thewor1.IssuedQty);
+                            updateStr.AppendFormat("UPDATE product_owor SET Status='{0}',Type='{1}',CmpltQty={2},RjctQty={3} WHERE sbo_id={4} AND DocEntry={5};", OWORModel.Status, OWORModel.Type, OWORModel.CmpltQty, OWORModel.RjctQty, Define.Sbo_Id, OWORModel.DocEntry);
                             updateStr.AppendLine();
-                        }
+                        };
+                        string strSqlwor1 = string.Format("SELECT DocEntry,LineNum,ItemCode,BaseQty,PlannedQty,IssuedQty,IssueType,wareHouse,VisOrder FROM WOR1 WHERE DocEntry={0}", theign.BaseEntry);
+                        var worModel = (await _repositoryBase.FindAsync<WOR1>(strSqlwor1, null)).ToList();
+                        //List<product_wor1> theworList = worModel.MapToList<product_wor1>();
+                        if (worModel.Count > 0)
+                        {
+                            foreach (var thewor1 in worModel)
+                            {
+                                updateStr.AppendFormat("UPDATE product_wor1 SET BaseQty={3},PlannedQty={4},IssuedQty={5}  WHERE sbo_id={0} AND DocEntry={1} AND ItemCode='{2}';", Define.Sbo_Id, thewor1.DocEntry, thewor1.ItemCode.Replace("'", "''")
+                                    , thewor1.BaseQty, thewor1.PlannedQty, thewor1.IssuedQty);
+                                updateStr.AppendLine();
+                            }
 
-                    }
-                    if (updateStr.Length > 0)
-                    {
-                        await _repositoryBase.BatchAddAsync<product_oign>(updateStr.ToString());
+                        }
                     }
                 }
+                if (updateStr.Length > 0)
+                {
+                    await _repositoryBase.BatchAddAsync<product_oign>(updateStr.ToString());
+                }
+
                 #endregion
 
                 result.Code = 200;
@@ -389,6 +396,45 @@ namespace IDC.Application.WMS
             return result;
         }
 
+        public async Task<TableData> ProductReceiptValidQty(int productNum)
+        {
+            TableData result = new TableData();
+            string strSqlOWOAR = string.Format("select ItemCode,PlannedQty,CmpltQty,RjctQty from owor where DocEntry={0}", productNum);
+            var OWORModel = (await _repositoryBase.FindAsync<OWOR>(strSqlOWOAR, null)).FirstOrDefault();
+            if (OWORModel != null)
+            {
+                var validQty = OWORModel.PlannedQty - OWORModel.CmpltQty - OWORModel.RjctQty;
+                if (validQty != null && validQty > 0)
+                {
+                    result.Code = 200;
+                    result.Data = new
+                    {
+                        DocEntry= productNum,
+                        ItemCode = OWORModel.ItemCode,
+                        ValidQty=validQty,
+                        PlannedQty= OWORModel.PlannedQty,
+                        CmpltQty= OWORModel.CmpltQty,
+                        RjctQty= OWORModel.RjctQty
+                    };
+                    result.Message = "订单还没完成收货，请按剩余数量收货";
+                }
+                else
+                {
+                    result.Code = 201;
+                    result.Data = new
+                    {
+                        DocEntry = productNum,
+                        ItemCode = OWORModel.ItemCode,
+                        ValidQty = validQty,
+                        PlannedQty = OWORModel.PlannedQty,
+                        CmpltQty = OWORModel.CmpltQty,
+                        RjctQty = OWORModel.RjctQty
+                    };
+                    result.Message = "订单已完成收货";
+                }
+            }
+            return result;
+        }
 
         public ProductReceiptApp(IRepositoryBase repositoryBase, Company oCompany, IAuth auth) : base(auth, repositoryBase)
         {
