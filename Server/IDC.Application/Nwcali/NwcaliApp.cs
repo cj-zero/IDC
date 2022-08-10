@@ -152,7 +152,7 @@ namespace IDC.Application.Nwcali
                                 select MAX(Id) id from devicetestlog where EdgeGuid='{query.EdgeGuid}' and SrvGuid='{query.SrvGuid}' and DevUid={query.DevUid}
                                 group by EdgeGuid,SrvGuid,DevUid,UnitId,ChlId) AND GeneratorCode='{wo}'
                                 group by LowGuid";
-                    var guidList = (await _repositoryBase.FindAsync<DeviceTestLog>(sql, null)).Select(c => c.LowGuid).ToList();
+                    var guidList = (await _repositoryBase.FindAsync<DeviceTestLog>(guidSql, null)).Select(c => c.LowGuid).ToList();
                     if (guidList.Count > 0)
                     {
                         //wo包含此guid

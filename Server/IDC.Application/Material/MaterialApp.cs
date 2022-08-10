@@ -13,13 +13,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace IDC.Application.Material
 {
     public class MaterialApp : BaseApp
     {
-        public MaterialApp(IRepositoryBase repositoryBase, IAuth auth) : base(auth, repositoryBase)
+        public IConfiguration Configuration { get; }
+        public MaterialApp(IRepositoryBase repositoryBase, IAuth auth, IConfiguration configuration) : base(auth, repositoryBase)
         {
+            Configuration = configuration;
         }
         public async Task<TableData> GetMaterialList(QueryMaterialListReq req)
         {
@@ -84,7 +87,8 @@ namespace IDC.Application.Material
         public async Task<TableData> GetXWJVersion(string guid)
         {
             var result = new TableData();
-            if (new string[] { "123" }.Contains(guid))
+            var version = Configuration.GetSection("XWJVersion").Value;
+            if (version == "CN")
             {
                 result.Data = new
                 {
@@ -98,7 +102,6 @@ namespace IDC.Application.Material
                     lang = $"{Version.EN}"
                 };
             }
-
             return result;
         }
 
