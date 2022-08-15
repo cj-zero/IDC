@@ -119,7 +119,7 @@ namespace IDC.Application.Nwcali
                     if (machine.Count > 0)
                     {
                         //下位机数量是否等于下位机校准证书数量
-                        if (guidList.Count == machine.Count)
+                        if (guidList.Count <= machine.Count)
                         {
                             result.Data = true;
                         }
