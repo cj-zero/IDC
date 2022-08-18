@@ -123,8 +123,28 @@ namespace IDC.Application.Nwcali
                         {
                             result.Data = true;
                         }
+                        else
+                        {
+                            result.Code = 500;
+                            result.Message = "烤机记录数与校准记录数不匹配，请确认生产码下所有设备已经烤机或校准。";
+                        }
+                    }
+                    else
+                    {
+                        result.Code = 500;
+                        result.Message = "未获取到校准记录，请确认生产码下设备已全部校准。";
                     }
                 }
+                else
+                {
+                    result.Code = 500;
+                    result.Message = "未获取到烤机记录，请确认生产码下设备已全部烤机。";
+                }
+            }
+            else
+            {
+                result.Code = 500;
+                result.Message = "未获取到烤机记录，请确认生产码下设备已全部烤机。";
             }
             return result;
         }
