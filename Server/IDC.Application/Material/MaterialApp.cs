@@ -122,7 +122,7 @@ namespace IDC.Application.Material
             var OWORModel = (await _repositoryBase.FindAsync<OWOR>(str2, null)).FirstOrDefault();
 
 
-            string str3 = $"select * from rdr1 where ITEMCODE ='S111-Firmware-EN' and  DocEntry= {OWORModel.OriginAbs}";
+            string str3 = $"select * from rdr1 where ITEMCODE ='S111-Firmware-EN' and  DocEntry= '{OWORModel.OriginAbs}'";
             var rdrModel = (await _repositoryBase.GetAsync<RDR1>(str3)).ToList();
             if (rdrModel.Count() > 0)
             {
