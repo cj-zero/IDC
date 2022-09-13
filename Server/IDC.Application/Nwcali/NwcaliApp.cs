@@ -107,8 +107,8 @@ namespace IDC.Application.Nwcali
             {
                 //最新环境下 最新通道测试记录
                 var guidSql = $@"select LowGuid from devicetestlog where id in(
-                                select MAX(Id) id from devicetestlog where EdgeGuid='{query.EdgeGuid}' and SrvGuid='{query.SrvGuid}' and DevUid={query.DevUid}
-                                group by EdgeGuid,SrvGuid,DevUid,UnitId,ChlId) AND GeneratorCode='{wo}'
+                                select MAX(Id) id from devicetestlog where EdgeGuid='{query.EdgeGuid}' and SrvGuid='{query.SrvGuid}' and DevUid={query.DevUid} AND GeneratorCode='{wo}'
+                                group by EdgeGuid,SrvGuid,DevUid,UnitId,ChlId)
                                 group by LowGuid";
                 var guidList = (await _repositoryBase.FindAsync<DeviceTestLog>(sql, null)).Select(c => c.LowGuid).ToList();
                 if (guidList.Count > 0)
@@ -119,12 +119,32 @@ namespace IDC.Application.Nwcali
                     if (machine.Count > 0)
                     {
                         //下位机数量是否等于下位机校准证书数量
-                        if (guidList.Count == machine.Count)
+                        if (guidList.Count <= machine.Count)
                         {
                             result.Data = true;
                         }
+                        else
+                        {
+                            result.Code = 500;
+                            result.Message = "烤机记录数与校准记录数不匹配，请确认生产码下所有设备已经烤机或校准。";
+                        }
+                    }
+                    else
+                    {
+                        result.Code = 500;
+                        result.Message = "未获取到校准记录，请确认生产码下设备已全部校准。";
                     }
                 }
+                else
+                {
+                    result.Code = 500;
+                    result.Message = "未获取到烤机记录，请确认生产码下设备已全部烤机。";
+                }
+            }
+            else
+            {
+                result.Code = 500;
+                result.Message = "未获取到烤机记录，请确认生产码下设备已全部烤机。";
             }
             return result;
         }
@@ -149,8 +169,8 @@ namespace IDC.Application.Nwcali
                 {
                     //最新环境下 最新通道测试记录
                     var guidSql = $@"select LowGuid from devicetestlog where id in(
-                                select MAX(Id) id from devicetestlog where EdgeGuid='{query.EdgeGuid}' and SrvGuid='{query.SrvGuid}' and DevUid={query.DevUid}
-                                group by EdgeGuid,SrvGuid,DevUid,UnitId,ChlId) AND GeneratorCode='{wo}'
+                                select MAX(Id) id from devicetestlog where EdgeGuid='{query.EdgeGuid}' and SrvGuid='{query.SrvGuid}' and DevUid={query.DevUid} AND GeneratorCode='{wo}'
+                                group by EdgeGuid,SrvGuid,DevUid,UnitId,ChlId) 
                                 group by LowGuid";
                     var guidList = (await _repositoryBase.FindAsync<DeviceTestLog>(guidSql, null)).Select(c => c.LowGuid).ToList();
                     if (guidList.Count > 0)
