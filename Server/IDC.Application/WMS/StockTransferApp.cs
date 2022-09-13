@@ -121,6 +121,7 @@ namespace IDC.Application.WMS
                 catch (Exception e)
                 {
                     result.Code = 202;
+                    result.Data = new { DocEntry = docNum };
                     result.Message = "SAP同步成功;ERP3.0同步失败:" + e.ToString();
                 }
             }
@@ -264,10 +265,12 @@ namespace IDC.Application.WMS
                 #endregion
 
                 result.Code = 200;
+                result.Data =new { DocEntry = docNum};
                 result.Message = "SAP同步成功;ERP同步成功";
             }catch(Exception ex)
             {
                 result.Code = 202;
+                result.Data = new { DocEntry = docNum };
                 result.Message = "SAP同步成功;ERP同步失败:" + ex.ToString();
             }
             return result;
