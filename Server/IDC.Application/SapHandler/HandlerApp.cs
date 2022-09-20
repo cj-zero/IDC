@@ -263,14 +263,14 @@ namespace IDC.Application.SapHandler
             {
                 var WhsCode = pdn1s.Where(o => o.ItemCode.Equals(item.ItemCode)).FirstOrDefault().WhsCode;
 
-                storeoitws.TryAdd(@$"update store_oitw set OnHand={item.OnHand},IsCommited={item.IsCommited},OnOrder={item.OnOrder} where ItemCode={item.ItemCode} and WhsCode={WhsCode}", null);
+                storeoitws.TryAdd(@$"update store_oitw set OnHand={item.OnHand},IsCommited={item.IsCommited},OnOrder={item.OnOrder} where ItemCode='{item.ItemCode.Replace("'","''")}' and WhsCode='{WhsCode}'", null);
             }
             var oitmList = await _repositoryBase.GetAsync<OITM>($@"select ItemCode, IsCommited, OnHand, OnOrder, LastPurCur, LastPurPrc, LastPurDat, UpdateDate from OITM where ItemCode in @itemCodes", parameters);
             var oitms = oitmList.MapToList<OITM>();
             foreach (var item in oitmList)
             {
                 storeoitws.TryAdd($@"update store_oitm set OnHand={item.OnHand},IsCommited={item.IsCommited},OnOrder={item.OnOrder}, 
-                            LastPurDat = {item.LastPurDat},LastPurPrc = {item.LastPurPrc},LastPurCur = {item.LastPurCur}, UpdateDate = {item.UpdateDate} where ItemCode ={item.ItemCode} ", null);
+                            LastPurDat = '{item.LastPurDat}',LastPurPrc = {item.LastPurPrc},LastPurCur = '{item.LastPurCur}', UpdateDate = '{item.UpdateDate}' where ItemCode ='{item.ItemCode.Replace("'", "''")}' ", null);
             }
             await _repositoryBase.ExecuteTransactionAsync<store_oitw>(storeoitws);
             #endregion
