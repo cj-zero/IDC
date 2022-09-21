@@ -117,7 +117,14 @@ namespace IDC.Application.Material
                 };
                 return result;
             }
-
+            if (orderNo == 25936 || orderNo == 26777 || orderNo == 25994 || orderNo == 26709)
+            {
+                result.Data = new
+                {
+                    lang = "EN"
+                };
+                return result;
+            }
             string str2 = $"SELECT OriginAbs from owor where DocEntry = {orderNo}";
             var OWORModel = (await _repositoryBase.FindAsync<OWOR>(str2, null)).FirstOrDefault();
 
