@@ -258,21 +258,26 @@ namespace IDC.Application.SapHandler
             parameters.Add("whsCodes", pdn1s.Select(p => p.WhsCode).ToArray());
             var oitwList = await _repositoryBase.GetAsync<OITW>($@"select ItemCode, IsCommited,OnHand,OnOrder from OITW where ItemCode in @itemCodes and WhsCode in @whsCodes", parameters);
             var oitws = oitwList.MapToList<OITW>();
-            Dictionary<string, object> storeoitws = new Dictionary<string, object>();
+            //Dictionary<string, object> storeoitws = new Dictionary<string, object>();
+            StringBuilder storeoitws = new StringBuilder();
             foreach (var item in oitwList)
             {
                 var WhsCode = pdn1s.Where(o => o.ItemCode.Equals(item.ItemCode)).FirstOrDefault().WhsCode;
-
-                storeoitws.TryAdd(@$"update store_oitw set OnHand={item.OnHand},IsCommited={item.IsCommited},OnOrder={item.OnOrder} where ItemCode='{item.ItemCode.Replace("'","''")}' and WhsCode='{WhsCode}'", null);
+                storeoitws.AppendFormat(@$"update store_oitw set OnHand={item.OnHand},IsCommited={item.IsCommited},OnOrder={item.OnOrder} where ItemCode='{item.ItemCode.Replace("'", "''")}' and WhsCode='{WhsCode}';");
+                storeoitws.AppendLine();
+                //storeoitws.TryAdd(@$"update store_oitw set OnHand={item.OnHand},IsCommited={item.IsCommited},OnOrder={item.OnOrder} where ItemCode='{item.ItemCode.Replace("'","''")}' and WhsCode='{WhsCode}'", null);
             }
             var oitmList = await _repositoryBase.GetAsync<OITM>($@"select ItemCode, IsCommited, OnHand, OnOrder, LastPurCur, LastPurPrc, LastPurDat, UpdateDate from OITM where ItemCode in @itemCodes", parameters);
             var oitms = oitmList.MapToList<OITM>();
             foreach (var item in oitmList)
             {
-                storeoitws.TryAdd($@"update store_oitm set OnHand={item.OnHand},IsCommited={item.IsCommited},OnOrder={item.OnOrder}, 
-                            LastPurDat = '{item.LastPurDat}',LastPurPrc = {item.LastPurPrc},LastPurCur = '{item.LastPurCur}', UpdateDate = '{item.UpdateDate}' where ItemCode ='{item.ItemCode.Replace("'", "''")}' ", null);
+                storeoitws.AppendFormat($@"update store_oitm set OnHand={item.OnHand},IsCommited={item.IsCommited},OnOrder={item.OnOrder}, 
+                            LastPurDat = '{item.LastPurDat}',LastPurPrc = {item.LastPurPrc},LastPurCur = '{item.LastPurCur}', UpdateDate = '{item.UpdateDate}' where ItemCode ='{item.ItemCode.Replace("'", "''")}'; ");
+                storeoitws.AppendLine();
+                //storeoitws.TryAdd($@"update store_oitm set OnHand={item.OnHand},IsCommited={item.IsCommited},OnOrder={item.OnOrder}, 
+                //            LastPurDat = '{item.LastPurDat}',LastPurPrc = {item.LastPurPrc},LastPurCur = '{item.LastPurCur}', UpdateDate = '{item.UpdateDate}' where ItemCode ='{item.ItemCode.Replace("'", "''")}' ", null);
             }
-            await _repositoryBase.ExecuteTransactionAsync<store_oitw>(storeoitws);
+            await _repositoryBase.BatchAddAsync<store_oitw>(storeoitws.ToString());
             #endregion
             #region 序列号
             var oitlsql = @$"select * from oitl where docentry={docNum} and doctype={20}";
