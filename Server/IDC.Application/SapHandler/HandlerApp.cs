@@ -39,9 +39,9 @@ namespace IDC.Application.SapHandler
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        public async Task<Response> Rcvddetail(RcvddetailReq model)
+        public async Task<TableData> Rcvddetail(RcvddetailReq model)
         {
-            Response result = new Response();
+            TableData result = new TableData();
             StringBuilder errorMsg = new StringBuilder();
             int res = 0; int eCode = 0; string eMesg = string.Empty; string docNum = string.Empty;
             try
@@ -195,6 +195,10 @@ namespace IDC.Application.SapHandler
                     errorMsg.Append($"调用接口添加采购收货操作成功,ID[{docNum}]");
                     await RcddetailErp(docNum, model);
                     result.Code = 200;
+                    result.Data = new
+                    {
+                        DocEntry = docNum,
+                    };
                     result.Message = errorMsg.ToString();
                 }
             }

@@ -28,7 +28,7 @@ namespace IDC.WebApi.Controllers.Handler
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<Response> Rcvddetail(RcvddetailReq model) 
+        public async Task<TableData> Rcvddetail(RcvddetailReq model) 
         {
             return await _handlerApp.Rcvddetail(model);
         }
