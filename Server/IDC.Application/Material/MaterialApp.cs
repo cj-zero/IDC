@@ -117,7 +117,7 @@ namespace IDC.Application.Material
                 };
                 return result;
             }
-            if (orderNo == 25936 || orderNo == 26777 || orderNo == 25994 || orderNo == 26709 || orderNo == 23241 || orderNo == 26164)
+            if (orderNo == 25936 || orderNo == 26777 || orderNo == 25994 || orderNo == 26709 || orderNo == 23241 || orderNo == 26164 || orderNo == 27294)
             {
                 result.Data = new
                 {
@@ -157,7 +157,59 @@ namespace IDC.Application.Material
             }
 
         }
-       
+        /// <summary>
+        /// 根据sn获取下位机程序的版本信息
+        /// </summary>
+        /// <param name="guid"></param>
+        /// <returns></returns>
+        public async Task<TableData> GetXWJVersionBySn(string sn)
+        {
+            string guid = "";
+            var result = new TableData();
+            string sql = $"select orderno from devicetestlog where lowguid = '{guid}' order by id desc LIMIT 1";
+            var data = await _repositoryBase.FindAsync<DeviceTestLog>(sql, null);
+            var orderNo = data?.FirstOrDefault()?.orderno;
+            if (orderNo == null)
+            {
+                result.Data = new
+                {
+                    lang = "NULL"
+                };
+                return result;
+            }
+            if (orderNo == 25936 || orderNo == 26777 || orderNo == 25994 || orderNo == 26709)
+            {
+                result.Data = new
+                {
+                    lang = "EN"
+                };
+                return result;
+            }
+            string str2 = $"SELECT OriginAbs from owor where DocEntry = {orderNo}";
+            var OWORModel = (await _repositoryBase.FindAsync<OWOR>(str2, null)).FirstOrDefault();
+
+
+            string str3 = $"select * from rdr1 where ITEMCODE ='S111-Firmware-EN' and  DocEntry= '{OWORModel.OriginAbs}'";
+            var rdrModel = (await _repositoryBase.GetAsync<RDR1>(str3)).ToList();
+            if (rdrModel.Count() > 0)
+            {
+                result.Data = new
+                {
+                    lang = "EN"
+                };
+                return result;
+            }
+            else
+            {
+                result.Data = new
+                {
+                    lang = "CN"
+                };
+                return result;
+            }
+
+        }
+
 
         /// <summary>
         /// 根据设备guid获取中位机软件版本
