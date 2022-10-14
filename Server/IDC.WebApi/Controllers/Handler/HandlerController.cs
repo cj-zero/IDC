@@ -23,7 +23,7 @@ namespace IDC.WebApi.Controllers.Handler
             _handlerApp = handlerApp;
         }
         /// <summary>
-        /// 同步采购订单
+        /// 同步采购收货
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
@@ -33,6 +33,27 @@ namespace IDC.WebApi.Controllers.Handler
             return await _handlerApp.Rcvddetail(model);
         }
 
+        /// <summary>
+        /// 同步运输采购订单
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<TableData> AddTransPurchaseOrder(AddPurchaseOrderReq model)
+        {
+            return await _handlerApp.AddTransPurchaseOrder(model);
+        }
+
+        /// <summary>
+        /// 修改运输采购订单
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<TableData> UpdateTransPurchaseOrder(AddPurchaseOrderReq model)
+        {
+            return await _handlerApp.UpdateTransPurchaseOrder(model);
+        }
 
         /// <summary>
         /// 创建并提交库存转储
