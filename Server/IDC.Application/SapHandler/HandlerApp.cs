@@ -336,7 +336,7 @@ namespace IDC.Application.SapHandler
                 var oporObj = (await _repositoryBase.GetAsync<OPOR>(seloporsql)).FirstOrDefault();
                 buy_opor opor = oporObj.MapTo<buy_opor>();
                 #region 修改主数据
-                updateStr.AppendFormat($@"update buy_opor set U_YF='{opor.U_YF}',U_KDF='{opor.U_KDF}',U_BZF='{opor.U_BZF}',U_YCF='{opor.U_YCF}',U_CCF='{opor.U_CCF}',U_THF='{opor.U_THF}' where DocEntry={docNum} and sbo_id={Define.Sbo_Id};");
+                updateStr.AppendFormat($@"update buy_opor set U_YF='{opor.U_YF}',U_KDF='{opor.U_KDF}',U_BZF='{opor.U_BZF}',U_YCF='{opor.U_YCF}',U_CCF='{opor.U_CCF}',U_THF='{opor.U_THF}',DocTotal={opor.DocTotal} where DocEntry={docNum} and sbo_id={Define.Sbo_Id};");
                 updateStr.AppendLine();
                 #endregion
                 #region 添加行数据
@@ -346,7 +346,7 @@ namespace IDC.Application.SapHandler
                 //opor.sbo_id = Define.Sbo_Id;
                 foreach (var item in por1s)
                 {
-                    updateStr.AppendFormat($@"update buy_por1 set U_WLLY='{item.U_WLLY}',U_YYFX='{item.U_YYFX}',U_ZXDH='{item.U_ZXDH}',U_CPH='{item.U_CPH}',U_TYWP='{item.U_TYWP}',U_TYSL='{item.U_TYSL}' WHERE DocEntry={docNum} and LineNum={item.LineNum} and sbo_id={Define.Sbo_Id};");
+                    updateStr.AppendFormat($@"update buy_por1 set U_WLLY='{item.U_WLLY}',U_YYFX='{item.U_YYFX}',U_ZXDH='{item.U_ZXDH}',U_CPH='{item.U_CPH}',U_TYWP='{item.U_TYWP}',U_TYSL='{item.U_TYSL}',Price={item.Price},LineTotal={item.LineTotal} WHERE DocEntry={docNum} and LineNum={item.LineNum} and sbo_id={Define.Sbo_Id};");
                     updateStr.AppendLine();
                 }
                 if (updateStr.Length > 0)
