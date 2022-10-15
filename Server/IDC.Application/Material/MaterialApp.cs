@@ -117,7 +117,8 @@ namespace IDC.Application.Material
                 };
                 return result;
             }
-            if (orderNo == 25936 || orderNo == 26777 || orderNo == 25994 || orderNo == 26709 || orderNo == 23241 || orderNo == 26164 || orderNo == 27294)
+            if (orderNo == 25936 || orderNo == 26777 || orderNo == 25994 || orderNo == 26709 
+                || orderNo == 23241 || orderNo == 26164 || orderNo == 27294 || orderNo == 25105)
             {
                 result.Data = new
                 {
