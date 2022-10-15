@@ -31,8 +31,337 @@ namespace IDC.Application.SapHandler
         {
             this.company = company;
         }
+        #region 采购订单
+        public async Task<TableData> AddTransPurchaseOrder(AddPurchaseOrderReq model)
+        {
+            TableData result = new TableData();
+            StringBuilder errorMsg = new StringBuilder();
+            int res = 0; int eCode = 0; string eMesg = string.Empty; string docNum = string.Empty;
+            try
+            {
+                SAPbobsCOM.Documents dts = (SAPbobsCOM.Documents)company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.oPurchaseOrders);
+                #region [添加主表信息]
+                dts.CardCode = model.CardCode;//客户代码
+                dts.CardName = model.CardName;
+                dts.ContactPersonCode =int.Parse( model.CntctCode);
+                dts.SalesPersonCode = int.Parse(model.SlpCode);
+                dts.NumAtCard = model.NumAtCard;
+                dts.DocCurrency = model.DocCur;
+                dts.DocDate = DateTime.Parse(model.DocDate);
+                dts.DocDueDate = DateTime.Parse(model.DocDueDate);
+                if (model.PartSupply == "true") { dts.PartialSupply = BoYesNoEnum.tYES; }
+                else { dts.PartialSupply = BoYesNoEnum.tNO; }
+                dts.Comments = model.Comments;      //备注
+                dts.Address2 = model.Address2;      //收货地址
+                dts.Address = model.Address;        //收款方                    
+                if (!string.IsNullOrEmpty(model.U_FPLB) && model.U_FPLB != "")
+                {
+                    dts.UserFields.Fields.Item("U_FPLB").Value = model.U_FPLB;
+                }
+                if (!string.IsNullOrEmpty(model.U_SL) && model.U_SL != "")
+                {
+                    dts.UserFields.Fields.Item("U_SL").Value = model.U_SL;
+                }
+                if (!string.IsNullOrEmpty(model.GroupNum.ToString()))
+                {
+                    dts.PaymentGroupCode = int.Parse(model.GroupNum.ToString());   //付款条款
+                }
+                dts.Indicator = model.Indicator;    // 标识
+                dts.FederalTaxID = model.LicTradNum;  //国税编号
+                dts.Project = "";
 
+                dts.PayToCode = model.PayToCode;//支付代码
+                dts.ShipToCode = model.ShipToCode;//购物代码
+                if (!string.IsNullOrEmpty(model.OwnerCode.ToString()))
+                {
+                    dts.DocumentsOwner = Convert.ToInt32(model.OwnerCode);
+                }
+                dts.DocType = BoDocumentTypes.dDocument_Service;
+                if (!string.IsNullOrEmpty(model.U_YGMD) && model.U_YGMD != "")
+                {
+                    dts.UserFields.Fields.Item("U_YGMD").Value = model.U_YGMD;
+                }
+                dts.PaymentMethod = model.PeyMethod;    //付款方式
+                if (!string.IsNullOrEmpty(model.U_CPH) && model.U_CPH != "")
+                {
+                    dts.UserFields.Fields.Item("U_CPH").Value = model.U_CPH;
+                }
+                if (!string.IsNullOrEmpty(model.U_YSQX) && model.U_YSQX != "")
+                {
+                    dts.UserFields.Fields.Item("U_YSQX").Value = model.U_YSQX;
+                }
+                if (!string.IsNullOrEmpty(model.U_YF) && model.U_YF != "")
+                {
+                    dts.UserFields.Fields.Item("U_YF").Value = model.U_YF;
+                }
+                if (!string.IsNullOrEmpty(model.U_KDF) && model.U_KDF != "")
+                {
+                    dts.UserFields.Fields.Item("U_KDF").Value = model.U_KDF;
+                }
+                if (!string.IsNullOrEmpty(model.U_BZF) && model.U_BZF != "")
+                {
+                    dts.UserFields.Fields.Item("U_BZF").Value = model.U_BZF;
+                }
+                if (!string.IsNullOrEmpty(model.U_YCF) && model.U_YCF != "")
+                {
+                    dts.UserFields.Fields.Item("U_YCF").Value = model.U_YCF;
+                }
+                if (!string.IsNullOrEmpty(model.U_OC_CN) && model.U_OC_CN != "")
+                {
+                    dts.UserFields.Fields.Item("U_OC_CN").Value = model.U_OC_CN;
+                }
+                if (!string.IsNullOrEmpty(model.U_OC_AD) && model.U_OC_AD != "")
+                {
+                    dts.UserFields.Fields.Item("U_OC_AD").Value = model.U_OC_AD;
+                }
+                if (!string.IsNullOrEmpty(model.U_OC_NA) && model.U_OC_NA != "")
+                {
+                    dts.UserFields.Fields.Item("U_OC_NA").Value = model.U_OC_NA;
+                }
+                if (!string.IsNullOrEmpty(model.U_OC_TE) && model.U_OC_TE != "")
+                {
+                    dts.UserFields.Fields.Item("U_OC_TE").Value = model.U_OC_TE;
+                }
+                if (!string.IsNullOrEmpty(model.U_PRX_SID) && model.U_PRX_SID != "")
+                {
+                    dts.UserFields.Fields.Item("U_PRX_SID").Value = model.U_PRX_SID;
+                }
+                if (!string.IsNullOrEmpty(model.U_PRX_TkNo) && model.U_PRX_TkNo != "")
+                {
+                    dts.UserFields.Fields.Item("U_PRX_TkNo").Value = model.U_PRX_TkNo;
+                }
+                if (!string.IsNullOrEmpty(model.U_PRX_SRVR) && model.U_PRX_SRVR != "")
+                {
+                    dts.UserFields.Fields.Item("U_PRX_SRVR").Value = model.U_PRX_SRVR;
+                }
+                if (!string.IsNullOrEmpty(model.U_ShipName) && model.U_ShipName != "")
+                {
+                    dts.UserFields.Fields.Item("U_ShipName").Value = model.U_ShipName;
+                }
+                if (!string.IsNullOrEmpty(model.U_SMAZ) && model.U_SMAZ != "")
+                {
+                    dts.UserFields.Fields.Item("U_SMAZ").Value = model.U_SMAZ;
+                }
+                if (!string.IsNullOrEmpty(model.U_CCF) && model.U_CCF != "")
+                {
+                    dts.UserFields.Fields.Item("U_CCF").Value = model.U_CCF;
+                }
+                if (!string.IsNullOrEmpty(model.U_THF) && model.U_THF != "")
+                {
+                    dts.UserFields.Fields.Item("U_THF").Value = model.U_THF;
+                }
+                #endregion
+                #region [添加行明细]
+                foreach (PurchaseAcctCode oact in model.PurchaseAcctCodeList)
+                {
+                    if (!string.IsNullOrEmpty(oact.BaseEntry))
+                    {
+                        dts.Lines.BaseEntry = int.Parse(oact.BaseEntry == "" ? "-1" : oact.BaseEntry);
+                        dts.Lines.BaseLine = int.Parse(oact.BaseLine);
+                        dts.Lines.BaseType = int.Parse(oact.BaseType == "" ? "-1" : oact.BaseType);
+                    }
+                    dts.Lines.AccountCode = oact.AcctCode;
+                    dts.Lines.ItemDescription = oact.Details;
+                    dts.Lines.UnitPrice = double.Parse(oact.Price == "" ? "0" : oact.Price);            //单价
+                    dts.Lines.DiscountPercent = double.Parse(oact.DiscPrcnt == "" ? "0" : oact.DiscPrcnt);     //折扣
+                    dts.Lines.VatGroup = "J0";
+                    if (!string.IsNullOrEmpty(oact.U_WLLY))
+                    {
+                        dts.Lines.UserFields.Fields.Item("U_WLLY").Value = oact.U_WLLY;
+                    }
+                    if (!string.IsNullOrEmpty(oact.U_YYFX))
+                    {
+                        dts.Lines.UserFields.Fields.Item("U_YYFX").Value = oact.U_YYFX;
+                    }
+                    if (!string.IsNullOrEmpty(oact.U_ZXDH))
+                    {
+                        dts.Lines.UserFields.Fields.Item("U_ZXDH").Value = oact.U_ZXDH;
+                    }
+                    if (!string.IsNullOrEmpty(oact.U_TYWP))
+                    {
+                        dts.Lines.UserFields.Fields.Item("U_TYWP").Value = oact.U_TYWP;
+                    }
+                    if (!string.IsNullOrEmpty(oact.U_CPH))
+                    {
+                        dts.Lines.UserFields.Fields.Item("U_CPH").Value = oact.U_CPH;
+                    }
+                    if (!string.IsNullOrEmpty(oact.U_TYSL))
+                    {
+                        dts.Lines.UserFields.Fields.Item("U_TYSL").Value = oact.U_TYSL;
+                    }
+                    dts.Lines.Add();
+                }
 
+                #endregion
+                res = dts.Add();
+                if (res != 0)
+                {
+                    company.GetLastError(out eCode, out eMesg);
+                    result.Code = 500;
+                    errorMsg.Append(string.Format("添加运输采购单时调接口发生异常[异常代码:{0},异常信息:{1}]", eCode, eMesg));
+                    result.Message = errorMsg.ToString();
+
+                }
+                else
+                {
+                    company.GetNewObjectCode(out docNum);
+                    errorMsg.Append($"调用接口添加运输采购单操作成功,ID[{docNum}]");
+                    await AddTransPurchaseOrderERP(docNum);
+                    result.Code = 200;
+                    result.Data = new
+                    {
+                        DocEntry = docNum,
+                    };
+                    result.Message = errorMsg.ToString();
+                }
+            }
+            catch (Exception e)
+            {
+                errorMsg.Append($"添加运输采购订单时调接口发生异常(eCode:{e})");
+                result.Code = 500;
+                result.Message = errorMsg.ToString();
+            }
+            return result;
+        }
+
+        public async Task AddTransPurchaseOrderERP(string docNum)
+        {
+            try
+            {
+                #region 添加主数据
+                var oporsql = @$"INSERT INTO buy_opor (sbo_id,DocEntry,DocNum,DocType,Printed,DocStatus,ObjType,DocDate,DocDueDate,CardCode,CardName,Address,
+                                NumAtCard,VatSum,DiscPrcnt,DiscSum,DocCur,DocRate,DocTotal,PaidToDate,GrosProfit,Comments,JrnlMemo,GroupNum,SlpCode,TrnspCode,PartSupply,
+                                CurSource,UpdateDate,CreateDate,TaxDate,TotalExpns,Address2,Indicator,ShipToCode,LicTradNum,PeyMethod,Ref1,PayToCode,CntctCode,CtlAccount
+                                ,SupplCode,OwnerCode,U_SL,U_FPLB,U_YGMD,U_FKZY,U_ACCT,U_BANK,U_RecComp,U_CPH,U_YSQX,U_YF,U_KDF,U_BZF,U_YCF,U_OC_CN,U_OC_AD,U_OC_NA,U_OC_TE
+                                ,U_PRX_SID,U_PRX_TkNo,U_PRX_SRVR,U_ShipName,U_SMAZ,U_CCF,U_THF) VALUES(
+                                @sbo_id,{docNum},{docNum},@DocType,@Printed,@DocStatus,@ObjType,@DocDate,@DocDueDate,@CardCode,@CardName,@Address
+                                ,@NumAtCard,@VatSum,@DiscPrcnt,@DiscSum,@DocCur,@DocRate,@DocTotal,@PaidToDate,@GrosProfit,@Comments,@JrnlMemo,@GroupNum,@SlpCode,@TrnspCode,@PartSupply
+                                ,@CurSource,@UpdateDate,@CreateDate,@TaxDate,@TotalExpns,@Address2,@Indicator,@ShipToCode,@LicTradNum,@PeyMethod,@Ref1,@PayToCode,@CntctCode,@CtlAccount
+                                ,@SupplCode,@OwnerCode,@U_SL,@U_FPLB,@U_YGMD,@U_FKZY,@U_ACCT,@U_BANK,@U_RecComp,@U_CPH,@U_YSQX,@U_YF,@U_KDF,@U_BZF,@U_YCF,@U_OC_CN,@U_OC_AD,@U_OC_NA,@U_OC_TE
+                                ,@U_PRX_SID,@U_PRX_TkNo,@U_PRX_SRVR,@U_ShipName,@U_SMAZ,@U_CCF,@U_THF)";
+                var seloporsql = @$"select * from OPOR where DocEntry={docNum}";
+                var oporObj = (await _repositoryBase.GetAsync<OPOR>(seloporsql)).FirstOrDefault();
+                buy_opor opor = oporObj.MapTo<buy_opor>();
+                opor.PartSupply = "Y";
+                if (opor.DocCur == "") { opor.DocCur = "RMB"; opor.DocRate = 1; }
+                if (opor.DocTotal.ToString() == "") { opor.DocTotal = 0; }
+                if (string.IsNullOrWhiteSpace(opor.OwnerCode.ToString())) { opor.OwnerCode = -1; }
+                if (string.IsNullOrWhiteSpace(opor.SlpCode.ToString())) { opor.SlpCode = -1; }
+                opor.sbo_id = Define.Sbo_Id;
+                await _repositoryBase.AddAsync<buy_opor>(oporsql, opor);
+                #endregion
+                #region 添加行数据
+                var por1sql = @$"INSERT INTO buy_por1 (sbo_id,DocEntry,LineNum,TargetType,TrgetEntry,BaseRef,BaseType,BaseEntry,BaseLine,LineStatus,ItemCode,Dscription,
+                                Quantity,Price,Currency,Rate,DiscPrcnt,LineTotal,TotalFrgn,WhsCode,SlpCode,GrossBuyPr,PriceBefDi,DocDate,VatPrcnt,VatGroup,PriceAfVAT,
+                                StockPrice,OpenQty,OpenSum,AcctCode,OrderedQty,TrnsCode,PackQty,BaseCard,StockValue,GTotal,unitMsr,NumPerMsr,LineVat,INMPrice,VisOrder,
+                                GrssProfit,ObjType,OpenCreQty,U_WLLY,U_YYFX,U_ZXDH,U_TYWP,U_CPH,U_TYSL) VALUES (
+                                @sbo_id,{docNum},@LineNum,@TargetType,@TrgetEntry,@BaseRef,@BaseType,@BaseEntry,@BaseLine,@LineStatus,@ItemCode,@Dscription,
+                                @Quantity,@Price,@Currency,@Rate,@DiscPrcnt,@LineTotal,@TotalFrgn,@WhsCode,@SlpCode,@GrossBuyPr,@PriceBefDi,@DocDate,@VatPrcnt,@VatGroup,@PriceAfVAT,
+                                @StockPrice,@OpenQty,@OpenSum,@AcctCode,@OrderedQty,@TrnsCode,@PackQty,@BaseCard,@StockValue,@GTotal,@unitMsr,@NumPerMsr,@LineVat,@INMPrice,@VisOrder,
+                                @GrssProfit,@ObjType,@OpenCreQty,@U_WLLY,@U_YYFX,@U_ZXDH,@U_TYWP,@U_CPH,@U_TYSL)
+                                ";
+                var por1Obj = await _repositoryBase.GetAsync<POR1>(@$"select * from por1 where DocEntry={docNum}");
+                var por1s = por1Obj.MapToList<buy_por1>();
+                por1s.ForEach(p => p.sbo_id = Define.Sbo_Id);
+                //opor.sbo_id = Define.Sbo_Id;
+                foreach (var item in por1s)
+                {
+                    await _repositoryBase.AddAsync<buy_por1>(por1sql, item);
+                }
+
+                #endregion
+            }
+            catch(Exception ex)
+            {
+                
+            }
+        }
+
+        public async Task<TableData> UpdateTransPurchaseOrder(AddPurchaseOrderReq model)
+        {
+            TableData result = new TableData();
+            StringBuilder errorMsg = new StringBuilder();
+            int res = 0; int eCode = 0; string eMesg = string.Empty; string docNum = string.Empty;
+            SAPbobsCOM.Documents dts = (SAPbobsCOM.Documents)company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.oPurchaseOrders);
+            dts.GetByKey(Convert.ToInt32(model.DocNum));
+            dts.UserFields.Fields.Item("U_YF").Value = model.U_YF;
+            dts.UserFields.Fields.Item("U_KDF").Value = model.U_KDF;
+            dts.UserFields.Fields.Item("U_BZF").Value = model.U_BZF;
+            dts.UserFields.Fields.Item("U_YCF").Value = model.U_YCF;
+            dts.UserFields.Fields.Item("U_CCF").Value = model.U_CCF;
+            dts.UserFields.Fields.Item("U_THF").Value = model.U_THF;
+            #region 行明细
+            int lindex = 0;
+            foreach (PurchaseAcctCode oact in model.PurchaseAcctCodeList)
+            {
+                dts.Lines.SetCurrentLine(lindex);
+                double theprice = 0;
+                double.TryParse(oact.Price, out theprice);
+                dts.Lines.UnitPrice = theprice;
+                dts.Lines.UserFields.Fields.Item("U_WLLY").Value = oact.U_WLLY;
+                dts.Lines.UserFields.Fields.Item("U_YYFX").Value = oact.U_YYFX;
+                dts.Lines.UserFields.Fields.Item("U_ZXDH").Value = oact.U_ZXDH;
+                dts.Lines.UserFields.Fields.Item("U_TYWP").Value = oact.U_TYWP;
+                dts.Lines.UserFields.Fields.Item("U_CPH").Value = oact.U_CPH;
+                dts.Lines.UserFields.Fields.Item("U_TYSL").Value = oact.U_TYSL;
+                dts.Lines.Add();
+                lindex++;
+            }
+            #endregion
+            res = dts.Update();
+            if (res != 0)
+            {
+                company.GetLastError(out eCode, out eMesg);
+                result.Code = 500;
+                errorMsg.Append(string.Format("修改运输采购单时调接口发生异常[异常代码:{0},异常信息:{1}]", eCode, eMesg));
+                result.Message = errorMsg.ToString();
+
+            }
+            else
+            {
+                company.GetNewObjectCode(out docNum);
+                errorMsg.Append($"调用接口修改运输采购单操作成功,ID[{docNum}]");
+                await UpdateTransPurchaseOrderERP(docNum);
+                result.Code = 200;
+                result.Message = errorMsg.ToString();
+            }
+            return result;
+        }
+        public async Task UpdateTransPurchaseOrderERP(string docNum)
+        {
+            try
+            {
+                StringBuilder updateStr = new StringBuilder();
+                var seloporsql = @$"select * from OPOR where DocEntry={docNum}";
+                var oporObj = (await _repositoryBase.GetAsync<OPOR>(seloporsql)).FirstOrDefault();
+                buy_opor opor = oporObj.MapTo<buy_opor>();
+                #region 修改主数据
+                updateStr.AppendFormat($@"update buy_opor set U_YF='{opor.U_YF}',U_KDF='{opor.U_KDF}',U_BZF='{opor.U_BZF}',U_YCF='{opor.U_YCF}',U_CCF='{opor.U_CCF}',U_THF='{opor.U_THF}',DocTotal={opor.DocTotal} where DocEntry={docNum} and sbo_id={Define.Sbo_Id};");
+                updateStr.AppendLine();
+                #endregion
+                #region 添加行数据
+                var por1Obj = await _repositoryBase.GetAsync<POR1>(@$"select * from por1 where DocEntry={docNum}");
+                var por1s = por1Obj.MapToList<buy_por1>();
+                por1s.ForEach(p => p.sbo_id = Define.Sbo_Id);
+                //opor.sbo_id = Define.Sbo_Id;
+                foreach (var item in por1s)
+                {
+                    updateStr.AppendFormat($@"update buy_por1 set U_WLLY='{item.U_WLLY}',U_YYFX='{item.U_YYFX}',U_ZXDH='{item.U_ZXDH}',U_CPH='{item.U_CPH}',U_TYWP='{item.U_TYWP}',U_TYSL='{item.U_TYSL}',Price={item.Price},LineTotal={item.LineTotal} WHERE DocEntry={docNum} and LineNum={item.LineNum} and sbo_id={Define.Sbo_Id};");
+                    updateStr.AppendLine();
+                }
+                if (updateStr.Length > 0)
+                {
+                    await _repositoryBase.BatchAddAsync<buy_por1>(updateStr.ToString());
+                }
+                #endregion
+            }
+            catch(Exception ex)
+            {
+
+            }
+        }
+
+        #endregion
         #region 采购收料
         /// <summary>
         /// 同步sap

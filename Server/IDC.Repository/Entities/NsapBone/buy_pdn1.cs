@@ -812,11 +812,7 @@ namespace IDC.Repository.Entities.Sap
         /// </summary>
         [Description("")]
         public int? LocCode { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        [Description("")]
-        public decimal? StockValue { get; set; }
+        
         /// <summary>
         /// 
         /// </summary>
