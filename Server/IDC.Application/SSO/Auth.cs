@@ -41,6 +41,12 @@ namespace IDC.Application.SSO
             token = _httpContextAccessor.HttpContext.Request.Headers[Define.TOKEN_NAME];
             if (!String.IsNullOrEmpty(token)) return token;
 
+            string limsToken = _httpContextAccessor.HttpContext.Request.Query["Authorization"];
+            if (!String.IsNullOrEmpty(limsToken)) return limsToken.Replace("Bearer", "").Trim();
+
+            limsToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
+            if (!String.IsNullOrEmpty(limsToken)) return limsToken.Replace("Bearer", "").Trim();
+
             var cookie = _httpContextAccessor.HttpContext.Request.Cookies[Define.TOKEN_NAME];
             return cookie ?? String.Empty;
         }

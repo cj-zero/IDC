@@ -28,5 +28,13 @@ namespace IDC.WebApi.Controllers.Common
             return await _checkApp.Login(req.Account,req.Password,req.SystemKey);
         }
 
+        [HttpPost]
+        [AllowAnonymous]
+        [Consumes("application/x-www-form-urlencoded")]
+        public async Task<dynamic> LoginByLims([FromForm] LimsUserLoginReq req)
+        {
+            return await _checkApp.LoginByLims(req.client_id, req.client_secret, req.scope);
+        }
+
     }
 }

@@ -1,6 +1,7 @@
 ﻿using IDC.Application.Material;
 using IDC.Application.Material.Request;
 using IDC.Infrastructure.Returned;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
@@ -27,6 +28,29 @@ namespace IDC.WebApi.Controllers.Material
         public async Task<TableData> GetMaterialList([FromQuery]QueryMaterialListReq req) 
         {
             return await _app.GetMaterialList(req);
+        }
+
+        /// <summary>
+        /// 绑定Guid和Sn
+        /// </summary>
+        /// <param name="guid"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<TableData> BindGuidSn([FromQuery] string guid, string Sn)
+        {
+            var result = new TableData();
+
+            try
+            {
+                result = await _app.BindGuidSn(guid, Sn);
+            }
+            catch (Exception ex)
+            {
+                result.Code = 500;
+                result.Message = ex.InnerException?.Message ?? ex.Message;
+            }
+
+            return result;
         }
 
         /// <summary>

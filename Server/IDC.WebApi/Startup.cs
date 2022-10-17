@@ -21,6 +21,8 @@ using IDC.WebApi.Global;
 using Newtonsoft.Json;
 using IDC.WebApi.SapHandler;
 using IDC.Application.SSO;
+using IDC.Repository.Core;
+using IDC.Infrastructure.Redis;
 
 namespace IDC.WebApi
 {
@@ -40,6 +42,8 @@ namespace IDC.WebApi
             //注册automapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddCors();
+            services.AddDbContexts();
+
             //注册HttpClient
             services.AddHttpClient();
             //注册swagger
@@ -65,7 +69,10 @@ namespace IDC.WebApi
             }).AddScoped<SwaggerGenerator>();//注入SwaggerGenerator,后面可以直接使用这个方法
             //redis缓存
             var csredis = new CSRedis.CSRedisClient(Configuration.GetSection("Redis:Default").Value);
+            var appredis = new CSRedis.CSRedisClient(Configuration.GetSection("Redis:App").Value);
             RedisHelper.Initialization(csredis);
+            AppRedis.Initialization(appredis);
+
             services.AddMvc(option =>
             {
                 //注入全局异常处理
@@ -111,6 +118,7 @@ namespace IDC.WebApi
             builder.RegisterType(typeof(RepositoryBase)).As(typeof(IRepositoryBase));
             //注册操作
             builder.RegisterType(typeof(Auth)).As(typeof(IAuth));
+            builder.RegisterType(typeof(UnitWork)).As(typeof(IUnitWork));
             //注册操作第三方Api
             builder.RegisterType(typeof(ThirdpartyHelper));
             //注册Application层
