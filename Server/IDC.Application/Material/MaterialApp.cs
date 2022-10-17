@@ -119,7 +119,7 @@ namespace IDC.Application.Material
         /// </summary>
         /// <param name="guid"></param>
         /// <returns></returns>
-        public async Task<TableData> GetXWJVersion1(string guid)
+        public async Task<TableData> GetXWJVersion(string guid)
         {
             var result = new TableData();
             var query = _unitWork.Find<snguidmap>(b => b.Guid == guid).FirstOrDefault();
@@ -175,7 +175,7 @@ namespace IDC.Application.Material
         /// </summary>
         /// <param name="guid"></param>
         /// <returns></returns>
-        public async Task<TableData> GetXWJVersion(string guid)
+        public async Task<TableData> GetXWJVersion1(string guid)
         {
             var result = new TableData();
             string sql = $"select orderno from devicetestlog where lowguid = '{guid}' order by id desc LIMIT 1";
