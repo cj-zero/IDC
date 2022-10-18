@@ -48,7 +48,6 @@ namespace IDC.Repository.Entities.Assets
         public string after_sale_contact { get; set; }
         public string after_sale_tel { get; set; }
         public int? admin_user_id { get; set; }
-        public int? admin_passport_id { get; set; }
         public int? old_category_id { get; set; }
         public string unit { get; set; }
         public string color { get; set; }
@@ -66,5 +65,8 @@ namespace IDC.Repository.Entities.Assets
         public decimal? number { get; set; }
 
         public string customer_id { get; set; }
+        public int? admin_passport_id { get; set; }
+
+
     }
 }

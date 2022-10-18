@@ -30,6 +30,6 @@ namespace IDC.Repository.Entities.Assets
         public Nullable<int> room_id { get; set; }
         public Nullable<decimal> number { get; set; }
 
-        public int passport_id { get; set; }
+        public int? passport_id { get; set; }
     }
 }

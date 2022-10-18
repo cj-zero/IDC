@@ -8,8 +8,8 @@ namespace IDC.Application.Nwcali.Request
 {
     public class AssetsCategoryReq
     {
-        public string customer_code { get; set; }
-        public int user_id { get; set; }
+        public string customer_id { get; set; }
+        public int passport_id { get; set; }
     }
     public class AssetsDelete : AssetsCategoryReq
     {

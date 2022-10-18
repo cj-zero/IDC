@@ -13,6 +13,6 @@ namespace IDC.Repository.Entities.Assets
         public int user_id { get; set; }
         public string content { get; set; }
         public System.DateTime created_on { get; set; }
-        public int passport_id { get; set; }
+        public int? passport_id { get; set; }
     }
 }

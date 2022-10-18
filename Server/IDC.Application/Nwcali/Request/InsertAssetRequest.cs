@@ -165,8 +165,8 @@ namespace IDC.Application.Nwcali.Request
         /// </summary>
         public decimal number { get; set; }
 
-        public string customer_code { get; set; }
-        public int user_id { get; set; }
+        public string customer_id { get; set; }
+        public int passport_id { get; set; }
     }
     /// <summary>
     /// 资产动态属性

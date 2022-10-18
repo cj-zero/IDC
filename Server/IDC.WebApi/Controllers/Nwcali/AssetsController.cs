@@ -38,26 +38,27 @@ namespace IDC.WebApi.Controllers.Nwcali
         /// <summary>
         /// 普通资产列表(web)
         /// </summary>
-        /// <param name="key">模糊查询值（默认空值） </param>
-        /// <param name="purchase_order_no">采购订单号 （默认0）</param>
-        /// <param name="category_id">资产类型ID  (默认0 全部资产类型)</param>
-        /// <param name="room_id">实验室id (默认0 全部实验室) </param>
-        /// <param name="status">状态 -1 全部（默认） 0-禁用 1-闲置 2-使用中 3-维修中 4-报废  5-已转储 </param>
-        /// <param name="guarantee_period_end">保修期区间 结束时间 （如 1990-01-02）  默认空字符串 </param>
-        /// <param name="PageCount">页数据量</param>
-        /// <param name="PageIndex">页码</param>
-        /// <param name="is_show">是否在资产列表显示 0:否  1:是（默认）</param>
-        /// <param name="isMap">是否需要排除组合资产</param>
-        /// <param name="customer_code">用户编码</param>
+        /// <param name="customer_code">客户代码</param>
+        /// <param name="room_id">实验室id</param>
+        /// <param name="category_id">资产类型id</param>
+        /// <param name="status">状态 -1 全部（默认） 0-禁用 1-闲置 2-使用中 3-维修中 4-报废  5-已转储</param>
+        /// <param name="guarantee_period_end">保修期</param>
+        /// <param name="key">模糊查询值</param>
+        /// <param name="purchase_order_no">采购订单号</param>
+        /// <param name="user_name">使用人名称</param>
+        /// <param name="PageCount"></param>
+        /// <param name="PageIndex"></param>
+        /// <param name="is_show">是否在资产列表显示</param>
         [HttpGet]
-        public async Task<TableData> AssetsList(string key = "", int purchase_order_no = 0, int category_id = 0, int room_id = 0, int status = -1,
-       string guarantee_period_end = "", int PageCount = 20, int PageIndex = 1, int is_show = 1, bool isMap = false, string customer_code = "")
+        public async Task<TableData> AssetsList(string customer_id, int room_id, int category_id, int status, DateTime? guarantee_period_end,
+            string key, int purchase_order_no, string user_name, int PageCount, int PageIndex, int is_show = 1,bool isMap = false)
         {
             var result = new TableData();
             try
             {
-                return await _app.AssetsList(key, purchase_order_no, category_id, room_id, status, guarantee_period_end, PageCount, PageIndex, is_show, isMap, customer_code);
-
+               // return await _app.AssetsList(key, purchase_order_no, category_id, room_id, status, guarantee_period_end, PageCount, PageIndex, is_show, isMap, customer_code);
+                return await _app.AssetsList(customer_id, room_id, category_id,  status, guarantee_period_end, key, purchase_order_no, user_name,
+                    PageCount, PageIndex, is_show, isMap);
             }
             catch (Exception ex)
             {
@@ -75,6 +76,25 @@ namespace IDC.WebApi.Controllers.Nwcali
         public async Task<TableData> AddAssets(InsertAssetRequest model)
         {
             TableData apiResult = new TableData();
+          
+            if (string.IsNullOrWhiteSpace(model.customer_id))
+            {
+                apiResult.Code = 500;
+                apiResult.Message = "企业id不能为空!";
+                return apiResult;
+            }
+            if (model.passport_id <= 0)
+            {
+                apiResult.Code = 500;
+                apiResult.Message = "用户id不能为空!";
+                return apiResult;
+            }
+            if (string.IsNullOrWhiteSpace(model.name))
+            {
+                apiResult.Code = 500;
+                apiResult.Message = "资产名称不能为空!";
+                return apiResult;
+            }
             if (string.IsNullOrWhiteSpace(model.name))
             {
                 apiResult.Code = 500;
@@ -120,7 +140,7 @@ namespace IDC.WebApi.Controllers.Nwcali
             if (!string.IsNullOrWhiteSpace(model.qr_code))
             {
                 //校验二维码
-                var assets_info = _app.GetAssetsInfoByCode(model.qr_code, model.customer_code);
+                var assets_info = _app.GetAssetsInfoByCode(model.qr_code, model.customer_id);
                 if (assets_info != null)
                 {
                     apiResult.Code = 500;
@@ -168,10 +188,12 @@ namespace IDC.WebApi.Controllers.Nwcali
                 return apiResult;
             }
             model.number = model.number < 1 ? 1 : model.number;
-            bool InsertSuccess = _app.InsertAssest(model.customer_code, model.user_id, model);
+            string msg = "";
+            bool InsertSuccess = _app.InsertAssest(model.customer_id, model.passport_id, model, out msg);
             if (!InsertSuccess)
             {
                 apiResult.Code = 500;
+                apiResult.Message = msg;
                 return apiResult;
             }//////  
 
@@ -197,6 +219,7 @@ namespace IDC.WebApi.Controllers.Nwcali
                 AppRedis.Del(redisCommonlyDevKey);
 
             }
+            apiResult.Message = "添加成功";
             return apiResult;
         }
 
@@ -211,13 +234,18 @@ namespace IDC.WebApi.Controllers.Nwcali
             TableData apiResult = new TableData();
             bool isTest = System.Convert.ToBoolean(Configuration.GetSection("IsTestEnvironment").Value);
 
-            //var flag = Business.AssetsApp.Instance.AssetsIsIdle(model.Id);
-            //if (!flag)
-            //{
-            //    apiResult.Error(ErrorCode.Error_Message_Code);
-            //    apiResult.ErrorMessage = "非闲置资产不可编辑!";
-            //    return Json(apiResult);
-            //}
+            if (string.IsNullOrWhiteSpace(model.customer_id))
+            {
+                apiResult.Code = 500;
+                apiResult.Message = "企业id不能为空!";
+                return apiResult;
+            }
+            if (model.passport_id <= 0)
+            {
+                apiResult.Code = 500;
+                apiResult.Message = "用户id不能为空!";
+                return apiResult;
+            }
             if (string.IsNullOrWhiteSpace(model.name))
             {
                 apiResult.Code = 500;
@@ -295,11 +323,12 @@ namespace IDC.WebApi.Controllers.Nwcali
                 newAddUser = model.maintain_charge_user.Except(maintain_userList).ToList();
             }
             //更新
-            var result = _app.EditAssets(model.customer_code, model.user_id, model);
+            string msg = "";
+            var result = _app.EditAssets(model.customer_id, model.passport_id, model,out msg);
             if (!result)
             {
                 apiResult.Code = 500;
-                apiResult.Message = "编辑失败!";
+                apiResult.Message = msg;
                 return apiResult;
             }
             //推送
@@ -333,7 +362,7 @@ namespace IDC.WebApi.Controllers.Nwcali
         public async Task<TableData> Asset_Delete(AssetsDelete model)
         {
             TableData apiResult = new TableData();
-            bool isManager = _app.CheckManager(model.user_id, model.customer_code);
+            bool isManager = _app.CheckManager(model.passport_id, model.customer_id);
             if (!isManager)
             {
                 apiResult.Code = 500;
@@ -348,7 +377,7 @@ namespace IDC.WebApi.Controllers.Nwcali
             }
 
             var error_message = string.Empty;
-             var result = _app.DeleteAssetsById(model.user_id, model.assets_id, out error_message);
+             var result = _app.DeleteAssetsById(model.passport_id, model.assets_id, out error_message);
 
             if (result)
             {
@@ -368,6 +397,8 @@ namespace IDC.WebApi.Controllers.Nwcali
             }
             else
             {
+                apiResult.Code = 500;
+                apiResult.Message = error_message;
                 return apiResult;
 
             }
@@ -512,14 +543,14 @@ namespace IDC.WebApi.Controllers.Nwcali
         public async Task<TableData> AddAssetsCategory(AddCategory model)
         {
             TableData apiResult = new TableData();
-            var CategoryData = _app.GetAssetsCategoryByName(model.parent_id, model.name, model.customer_code);
+            var CategoryData = _app.GetAssetsCategoryByName(model.parent_id, model.name, model.customer_id);
             if (CategoryData != null)
             {
                 apiResult.Code = 500;
                 apiResult.Message = "分类名称已存在,无法重复添加!";
                 return apiResult;
             }
-            var result = _app.AddAssetsCategory(model.parent_id, model.name, model.customer_code);
+            var result = _app.AddAssetsCategory(model.parent_id, model.name, model.customer_id);
             if (!result)
             {
                 apiResult.Code = 500;
@@ -536,7 +567,7 @@ namespace IDC.WebApi.Controllers.Nwcali
         public async Task<TableData> UpdateCategorySpecs(CategorySpecs model)
         {
             TableData apiResult = new TableData();
-            bool isManager = _app.CheckManager(model.user_id, model.customer_code);
+            bool isManager = _app.CheckManager(model.passport_id, model.customer_id);
             if (!isManager)
             {
                 apiResult.Code = 500;
@@ -555,14 +586,14 @@ namespace IDC.WebApi.Controllers.Nwcali
         public async Task<TableData> DeleteSpecs(DeleteSpecs model)
         {
             TableData apiResult = new TableData();
-            bool isManager =_app.CheckManager(model.user_id, model.customer_code);
+            bool isManager =_app.CheckManager(model.passport_id, model.customer_id);
             if (!isManager)
             {
                 apiResult.Code = 500;
                 apiResult.Message = "该用户不是资产管理员,无操作权限!";
                 return apiResult;
             }
-            apiResult = _app.DeleteSpecs(model.customer_code, model.specIds);
+            apiResult = _app.DeleteSpecs(model.customer_id, model.specIds);
             return apiResult;
         }
 
@@ -574,7 +605,7 @@ namespace IDC.WebApi.Controllers.Nwcali
         public async Task<TableData> AddSpec(EditSpec model)
         {
             TableData apiResult = new TableData();
-            bool isManager = _app.CheckManager(model.user_id, model.customer_code);
+            bool isManager = _app.CheckManager(model.passport_id, model.customer_id);
             if (!isManager)
             {
                 apiResult.Message = "该用户不是资产管理员,无操作权限!";
@@ -582,7 +613,7 @@ namespace IDC.WebApi.Controllers.Nwcali
                 return apiResult;
             }
             string msg = "";
-            var result = _app.AddSpec(model.spec_name, model.customer_code, out msg);
+            var result = _app.AddSpec(model.spec_name, model.customer_id, out msg);
             if (!result)
             {
                 apiResult.Message = msg;

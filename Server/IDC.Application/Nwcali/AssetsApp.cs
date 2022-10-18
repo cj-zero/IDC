@@ -46,407 +46,7 @@ namespace IDC.Application.Nwcali
         #region 普通资产
 
         /// <summary>
-        /// 资产列表(web)
-        /// </summary>
-        /// <param name="key">模糊查询值（默认空值） </param>
-        /// <param name="purchase_order_no">采购订单号 （默认0）</param>
-        /// <param name="category_id">资产类型ID  (默认0 全部资产类型)</param>
-        /// <param name="room_id">实验室id (默认0 全部实验室) </param>
-        /// <param name="status">状态 -1 全部（默认） 0-禁用 1-闲置 2-使用中 3-维修中 4-报废  5-已转储 </param>
-        /// <param name="guarantee_period_end">保修期区间 结束时间 （如 1990-01-02）  默认空字符串 </param>
-        /// <param name="PageCount">页数据量</param>
-        /// <param name="PageIndex">页码</param>
-        /// <param name="is_show">是否在资产列表显示 0:否  1:是（默认）</param>
-
-        public async Task<TableData> AssetsList(string key = "", int purchase_order_no = 0, int category_id = 0, int room_id = 0, int status = -1,
-            string guarantee_period_end = "", int PageCount = 20, int PageIndex = 1, int is_show = 1, bool isMap = false, string customer_id = "")
-        {
-            TableData apiResult = new TableData();
-            // 全部资产
-            var assets_counts = 0;
-            // 全部页数
-            var page_counts = 0;
-            var current_page = PageIndex;
-            var guarantee_period_start = string.Empty;
-            if (!string.IsNullOrEmpty(guarantee_period_end))
-            {
-                // 检查时间格式 && end > 当前时间
-                DateTime check_end_time;
-                var is_effective_end_time = DateTime.TryParse(guarantee_period_end, out check_end_time);
-                if (is_effective_end_time)
-                {
-                    if (check_end_time < DateTime.Now)
-                    {
-                        apiResult.Message = "保修时间不得小于当前时间！";
-                        apiResult.Code = 500;
-                        return apiResult;
-                    }
-                    else
-                    {   // guarantee_period_end 有效，guarantee_period_start 为当前时间
-                        guarantee_period_start = DateTime.Now.ToString("yyyy-MM-dd");
-                    }
-                }
-                else
-                {
-                    apiResult.Message = "保修时间输入有误！";
-                    apiResult.Code = 500;
-                    return apiResult;
-                }
-
-            }
-            //var UserData = _auth.GetCurrentUser();
-            List<dynamic> asset_list = new List<dynamic>();
-            var allAssets = GetAssetsList(customer_id, room_id, category_id, status, guarantee_period_start, guarantee_period_end, key, purchase_order_no, is_show, isMap);
-
-            assets_counts = allAssets.Count();
-            if (assets_counts > 0)
-            {
-                page_counts = (int)Math.Ceiling((double)assets_counts / PageCount);
-                //对分页的数据进行字段补充
-                allAssets = allAssets.Skip(PageCount * (PageIndex - 1)).Take(PageCount).ToList();
-
-                var userDic = AssetUser(allAssets);
-                var roomDic = AssetRoom(allAssets);
-
-                var allCategorys = GetAllAssetsCategory(customer_id);
-                foreach (var item in allAssets)
-                {
-                    var category_name = allCategorys.Where(c => c.id == item.category_id).FirstOrDefault()?.name;
-                    var user = userDic.ContainsKey(item.id) ? userDic[item.id] : "";
-                    var roomInfo = roomDic.ContainsKey(item.id) ? roomDic[item.id] : null;
-                    var status_txt = ConvertAssetStatus(item.status);
-                    var book_id = 0;
-                    var over_time = string.Empty;
-                    var start_time = string.Empty;
-
-                    if (item.status == 2 && (item.use_type == 2 || item.use_type == 1))
-                    {
-                        var book = GetCurrentBook(item.id, item.use_type);
-                        if (book != null)
-                        {
-                            book_id = book.id;
-                            over_time = book.over_time.ToString("yyyy-MM-dd HH:mm");
-                            start_time = book.start_time.ToString("yyyy-MM-dd HH:mm");
-                        }
-                    }
-
-                    var use_type_txt = string.Empty;
-                    switch (item.use_type)
-                    {
-                        case 1:
-                            use_type_txt = "借用";
-                            break;
-                        case 2:
-                            use_type_txt = "预约";
-                            break;
-                        case 3:
-                            use_type_txt = "领用";
-                            break;
-                        default:
-                            break;
-                    }
-                    dynamic new_asset = new
-                    {
-                        item.id,
-                        item.assets_no,//资产编号
-                        item.name,//资产名称
-                        item.sn,
-                        item.guid,
-                        item.cover_img,//图片
-                        item.category_id,//类别ID
-                        category_name,//类别名称
-                        item.brand,//品牌
-                        item.spec_no,//型号
-                        item.serial,//数量
-                        item.unit,//单位
-                        item.color,//颜色
-                        item.purchase_order_no,//采购订单号
-                        room = roomInfo == null ? "" : roomInfo.name,//实验室
-                        room_id = roomInfo == null ? 0 : roomInfo.room_id,//实验室id
-                        item.status,
-                        status_txt,//状态
-                        user,//当前使用人
-                        item.use_type,
-                        use_type_txt,//使用类型
-                        item.item_code,//物料编码
-                        item.place,//存放地点
-                        item.item_code_dscription,//物料描述
-                        item.is_bts,//是否bts设备
-                        created_on = item.created_on.ToString("yyyy-MM-dd HH:mm"),//创建时间
-                        start_time,//预约开始时间
-                        over_time,//预约结束时间
-                        book_id,//预约id
-                        remark = item.remark == null ? "" : item.remark,//备注
-                        guarantee_period = item.guarantee_period?.ToString("yyyy-MM-dd HH:mm"),//保修期
-                        purchase_date = item.purchase_date?.ToString("yyyy-MM-dd HH:mm")//采购时间
-                    };
-                    asset_list.Add(new_asset);
-                }
-            }
-            dynamic result_info = new { assets_counts, current_page, page_counts, asset_list };
-            apiResult.Data = result_info;
-            return apiResult;
-        }
-
-        /// <summary>
-        /// 获取正在使用的资产对应的当前申请单
-        /// </summary>
-        /// <param name="assetsList"></param>
-        /// <returns></returns>
-        public assets_book GetCurrentBook(int assets_id, int use_type)
-        {
-
-            if (use_type == 2)
-            {
-                return _unitWork.Find<assets_book>(b => b.assets_id == assets_id
-                && b.status == 1
-                && b.audit_status == 1
-                && b.start_time < DateTime.Now
-                && b.over_time > DateTime.Now).FirstOrDefault();
-            }
-            else
-            {
-                return _unitWork.Find<assets_book>(b => b.assets_id == assets_id
-                && b.status == 1
-                && b.audit_status == 1
-               ).OrderByDescending(c => c.create_time).FirstOrDefault();
-            }
-        }
-        public string ConvertAssetStatus(int status)
-        {
-            switch (status)
-            {
-                case 0:
-                    return "禁用";
-                case 1:
-                    return "闲置";
-                case 2:
-                    return "使用中";
-                case 3:
-                    return "维修中";
-                case 4:
-                    return "报废";
-                case 5:
-                    return "已转储";
-                default:
-                    return "";
-            }
-        }
-        public Dictionary<int, room> AssetRoom(List<assets> assetsList)
-        {
-
-            var dic = new Dictionary<int, room>();
-            var all_room_map = (from m in _unitWork.Find<assets_room_map>(null)
-                                join r in _unitWork.Find<room>(a => a.create_source == 1) on m.room_id equals r.room_id
-                                select new { r.room_id, r.name, m.assets_id }).ToList();
-
-            foreach (var assets in assetsList)
-            {
-                var room = all_room_map.Where(r => r.assets_id == assets.id).FirstOrDefault();
-                if (room == null)
-                    continue;
-
-                var model = new room();
-                model.room_id = room.room_id;
-                model.name = room.name;
-                dic.Add(assets.id, model);
-            }
-            return dic;
-        }
-        /// <summary>
-        /// 获取资产的当前使用人信息
-        /// </summary>
-        /// <param name="assets"></param>
-        /// <returns></returns>
-        public Dictionary<int, string> AssetUser(List<assets> assetsList)
-        {
-            Dictionary<int, string> dic = new Dictionary<int, string>();
-            var users = _unitWork.Find<accounts>(null).ToList();
-
-
-            var all_assets_books = _unitWork.Find<assets_book>(l => l.audit_status == 1 && l.status == 1).OrderByDescending(l => l.create_time).ToList();
-            var all_return_logs = _unitWork.Find<assets_return_log>(null).ToList();
-            foreach (var assets in assetsList)
-            {
-                int useType = assets.use_type;
-                int assetsId = assets.id;
-                if (useType == 1)
-                {
-                    var useLog = all_assets_books.Where(l => l.assets_id == assetsId && l.has_returned == 0 && l.audit_status == 1 && l.status == 1).OrderByDescending(l => l.create_time).FirstOrDefault();
-                    if (useLog == null)
-                    {
-                        dic.Add(assetsId, "无");
-                        continue;
-                    }
-                    var returnLog = all_return_logs.Where(l => l.rel_id == useLog.id).FirstOrDefault();
-                    if (returnLog != null)
-                    {
-                        dic.Add(assetsId, "无");
-                        continue;
-                    }
-               
-                    var user = users.Where(u => u.passport_id == useLog.passport_id).FirstOrDefault();
-                    if (user == null)
-                    {
-                        dic.Add(assetsId, "无");
-                        continue;
-                    }
-                    else
-                    {
-                        var dep = "";// string.IsNullOrWhiteSpace(user.department) == true ? "" : user.department + "-";
-                        string name = string.IsNullOrWhiteSpace(user.realname) == true ? user.nickname : dep + user.realname;
-                        dic.Add(assetsId, name);
-                    }
-                }
-                else
-                {
-                    var book = all_assets_books.Where(b => b.assets_id == assetsId && b.start_time < DateTime.Now && b.over_time > DateTime.Now && b.status == 1 && b.audit_status == 1).FirstOrDefault();
-                    if (book == null)
-                    {
-                        dic.Add(assetsId, "无");
-                        continue;
-                    }
-                    var user = users.Where(u => u.passport_id == book.passport_id).FirstOrDefault();
-                    if (user == null)
-                    {
-                        dic.Add(assetsId, "无");
-                        continue;
-                    }
-                    else
-                    {
-                        var dep = "";//string.IsNullOrWhiteSpace(user.department) == true ? "" : user.department + "-";
-                        string name = string.IsNullOrWhiteSpace(user.realname) == true ? user.nickname : dep + user.realname;
-                        dic.Add(assetsId, name);
-                    }
-                }
-            }
-            return dic;
-        }
-
-        /// <summary>
-        /// 资产列表(web)
-        /// </summary>
-        /// <param name = "customer_code" > 客户代码 </ param >
-        /// <param name="room_id">实验室id </param>
-        /// <param name="category_id">资产类型id </param>
-        /// <param name="status">状态 -1 全部（默认） 0-禁用 1-闲置 2-使用中 3-维修中 4-报废  5-已转储 </param>
-        /// <param name="guarantee_period_start">保修期区间条件查询 开始时间 （如 1990-01-01）  </param>
-        /// <param name="guarantee_period_end">保修期区间 介绍时间 （如 1990-01-02）  </param>
-        /// <param name="key">模糊查询值 </param>
-        /// <param name="purchase_order_no">采购订单号 </param>
-        /// <param name="is_show">是否在资产列表显示</param>
-        public List<assets> GetAssetsList(string customer_id, int room_id, int category_id, int status, string guarantee_period_start, string guarantee_period_end, string key, int purchase_order_no, int is_show = 1, bool isMap = false)
-        {
-
-            List<assets> assets_list = new List<assets>();
-            var total_asssets = _unitWork.Find<assets>(c => c.customer_id == customer_id && c.is_private == false && c.is_delete == false).ToList();
-
-            if (isMap)
-            {
-                var list = _unitWork.Find<PortfolioAssetsMap>(a => a.SourceType == 2).Select(a => a.AssetId).ToList();
-                total_asssets = total_asssets.Where(a => !list.Contains(a.id)).ToList();
-            }
-
-            if (is_show == 1)
-                total_asssets = total_asssets.Where(c => c.is_show == true).ToList();
-            else
-                total_asssets = total_asssets.Where(c => c.is_show == false).ToList();
-
-            if (!string.IsNullOrEmpty(guarantee_period_end) && !string.IsNullOrEmpty(guarantee_period_start))
-            {
-                var warranty_start = DateTime.Parse(guarantee_period_start);
-                var warranty_end = DateTime.Parse(guarantee_period_end);
-                warranty_end = warranty_end.AddDays(1);
-                total_asssets = total_asssets.Where(c => c.guarantee_period >= warranty_start && c.guarantee_period <= warranty_end).ToList();
-            }
-
-            if (purchase_order_no != 0)
-            {
-                total_asssets = total_asssets.Where(c => c.purchase_order_no == purchase_order_no).ToList();
-            }
-
-            if (room_id > 0)
-            {
-                var total_assets_room_map = (from rm in _unitWork.Find<assets_room_map>(null)
-                                             join r in _unitWork.Find<room>(a => a.status == 1 && a.create_source == 1) on rm.room_id equals r.room_id
-                                             where (r.customer_id == customer_id || r.room_id == 99)
-                                             select new { r.room_id, r.name, rm.assets_id }).ToList();
-                total_assets_room_map = total_assets_room_map.Where(c => c.room_id == room_id).ToList();
-                var map_room_assets_ids = total_assets_room_map.Select(c => c.assets_id).ToList();
-                total_asssets = total_asssets.Where(c => map_room_assets_ids.Contains(c.id)).ToList();
-            }
-            if (category_id > 0)
-            {
-                List<int> category_list = new List<int>();
-                var all_category_ids = GetAssetsCategoryIDLists(customer_id, category_id);
-                category_list.AddRange(all_category_ids);
-                total_asssets = total_asssets.Where(c => category_list.Contains(c.category_id)).ToList();
-            }
-
-            if (!string.IsNullOrEmpty(key))
-            {
-                try
-                {
-                    key = TextHelper.DelHTML(key);
-                    key = key.Trim();
-                    key = key.Replace("^", string.Empty).Replace("$", string.Empty);
-                    if (key.IndexOf("*") == 0)
-                        key = key.Substring(1, key.Length - 1);
-                    var expression = @"^.*" + key + ".*$";
-                    expression = expression.ToUpper();
-                    var test_flag = Regex.IsMatch("TEST", expression);
-                    total_asssets = total_asssets.Where(u => Regex.IsMatch(u.name.ToUpper(), expression)
-                               || (u.assets_no != null && Regex.IsMatch(u.assets_no.ToUpper(), expression))
-                               || (u.guid != null && Regex.IsMatch(u.guid.ToUpper(), expression))
-                               || (u.brand != null && Regex.IsMatch(u.brand.ToUpper(), expression))
-                               || (u.spec_no != null && Regex.IsMatch(u.spec_no.ToUpper(), expression))
-                               || (u.sn != null && Regex.IsMatch(u.sn.ToUpper(), expression))
-                     ).ToList();
-                }
-                catch (Exception ex)
-                {
-                    //total_asssets = new List<assets>();
-                }
-            }
-            DateTime dt = DateTime.Now;
-            var allBookInfo = (from a in _unitWork.Find<assets_book>(a => a.status == 1)
-                               join b in _unitWork.Find<assets>(a => a.is_private == false && a.is_delete == false && a.customer_id == customer_id) on a.assets_id equals b.id
-                               select a).ToList();//预约类型资产有效申请单
-
-            // 预约类型闲置（包括闲置+使用中）,需要重新区分
-            var idels_book_assets = total_asssets.Where(c => c.use_type == 2).ToList();
-            foreach (var item in idels_book_assets)
-            {
-                if (item.status == 1 || item.status == 2)
-                {
-                    var hasBooks = allBookInfo.Where(c => c.use_type == 2 && c.assets_id == item.id && c.start_time <= dt && c.over_time >= dt && c.status == 1 && c.audit_status == 1).OrderByDescending(c => c.id).FirstOrDefault();
-                    if (hasBooks != null)
-                        item.status = 2;
-                    else
-                        item.status = 1;
-
-                    assets_list.Add(item);
-                }
-                else
-                {
-                    assets_list.Add(item);
-                }
-            }
-            var other_assets = total_asssets.Except(idels_book_assets).ToList();
-            // 重新整合有效的资产数据
-            assets_list.AddRange(other_assets);
-
-            if (status >= 0)
-            {
-                assets_list = assets_list.Where(c => c.status == status).ToList();
-            }
-            assets_list = assets_list.OrderByDescending(c => c.id).ToList();
-            return assets_list;
-        }
-
-
-        /// <summary>
-        /// 
+        /// 普通资产列表
         /// </summary>
         /// <param name="customer_code">客户代码</param>
         /// <param name="room_id">实验室id</param>
@@ -460,17 +60,20 @@ namespace IDC.Application.Nwcali
         /// <param name="PageIndex"></param>
         /// <param name="is_show">是否在资产列表显示</param>
         /// <returns></returns>
-        public async Task<TableData> AssetsList2(string customer_code, int room_id, int category_id, int status, DateTime? guarantee_period_end, string key, int purchase_order_no, string user_name, int PageCount, int PageIndex, int is_show = 1)
+        public async Task<TableData> AssetsList(string customer_id, int room_id, int category_id, int status, DateTime? guarantee_period_end, string key, 
+            int purchase_order_no, string user_name, int PageCount, int PageIndex, int is_show ,bool isMap)
         {
+
+
             TableData serviceResult = new TableData();
             List<object> list = new List<object>();
             DateTime dt = DateTime.Now;
             var is_show_identity = is_show == 1 ? true : false;
-            var query = _unitWork.Find<assets>(c => c.customer_code == customer_code && c.is_private == false && c.is_delete == false && c.is_show == is_show_identity);
+            var query = _unitWork.Find<assets>(c => c.customer_id == customer_id && c.is_private == false && c.is_delete == false && c.is_show == is_show_identity);
             List<int> category_ids = new List<int>();
             if (category_id > 0)
             {
-                category_ids = GetAssetsCategoryIDLists(customer_code, category_id);
+                category_ids = GetAssetsCategoryIDLists(customer_id, category_id);
             }
             List<int> room_assets_ids = new List<int>();
             if (room_id > 0)
@@ -500,7 +103,7 @@ namespace IDC.Application.Nwcali
             }
             //使用人
             List<int> use_assets_ids = new List<int>();
-            if (!string.IsNullOrWhiteSpace(user_name) && customer_code == "C00550")
+            if (!string.IsNullOrWhiteSpace(user_name) && customer_id == "C00550")
             {
                 string xtoken = string.Empty;
                 var token_res = GetXToken();
@@ -566,7 +169,7 @@ namespace IDC.Application.Nwcali
             var assets_list_ids = assets.Select(c => c.id).ToList();
             var room_list = (from a in _unitWork.Find <room>(null)
                              join b in _unitWork.Find<assets_room_map>(null) on a.room_id equals b.room_id
-                             where assets_list_ids.Contains(b.assets_id) && (a.customer_code == customer_code || a.user_id == -1) && a.status == 1 && a.create_source == 1
+                             where assets_list_ids.Contains(b.assets_id) && (a.customer_id == customer_id || a.user_id == -1) && a.status == 1 && a.create_source == 1
                              select new { a.room_id, a.name, b.assets_id }).ToList();
             var category_list = _unitWork.Find<assets_category>(c => assets_list_category_ids.Contains(c.id) && c.status == 1).Select(c => new { c.name, c.id }).ToList();
             var assets_list_user = (from a in _unitWork.Find<assets_book>(null)
@@ -718,11 +321,20 @@ namespace IDC.Application.Nwcali
         
         public List<int> GetMaintainUserList(int Id)
         {
-                var query = (from a in _unitWork.Find< assets_maintain_user >(null)
-                             join b in _unitWork.Find<accounts>(null) on a.passport_id equals b.passport_id
-                             where a.assets_id == Id && b.status == 1
-                             select b.passport_id).ToList();
-                return query;
+            try
+            {
+                var passIds = _unitWork.Find<assets_maintain_user>(a => a.assets_id == Id).Select(a =>a.passport_id).ToList();
+
+                var list = _unitWork.Find<accounts>(a => a.status == 1 && passIds.Contains(a.passport_id)).Select(a => a.passport_id).ToList();
+              
+                return list;
+
+            }
+            catch (Exception ex )
+            {
+                return null;
+            }
+                
         }
 
         /// <summary>
@@ -732,8 +344,9 @@ namespace IDC.Application.Nwcali
         /// <param name="user_Id">添加人用户Id</param>
         /// <param name="model"></param>
         /// <returns></returns>
-        public bool InsertAssest(string customer_id, int passport_id, InsertAssetRequest model)
+        public bool InsertAssest(string customer_id, int passport_id, InsertAssetRequest model,out string msg)
         {
+            msg = "";
             try
             {
                 var sn = model.sn.Split(',');
@@ -802,7 +415,7 @@ namespace IDC.Application.Nwcali
                         assetsInfo.is_private = true;
                         assetsInfo.customer_id = "";
                     }
-                    var info = _unitWork.Add<assets, int>(assetsInfo); ;
+                    var info = _unitWork.Add<assets, int>(assetsInfo); 
                     _unitWork.Save();
                     if (info != null)
                     {
@@ -836,7 +449,7 @@ namespace IDC.Application.Nwcali
                             assetsRoomMap.is_commonly_assets = 0;
                             assetsRoomMap.room2_id = 0;
                             assetsRoomMap.make_top_time = Convert.ToDateTime("1990-01-01 00:00:00");
-                            _unitWork.Add<assets_room_map, int>(assetsRoomMap); ;
+                            _unitWork.Add<assets_room_map, int>(assetsRoomMap); 
                             _unitWork.Save();
                         }
                         //保养信息
@@ -861,7 +474,7 @@ namespace IDC.Application.Nwcali
                                 assets_Spec_Val.spec_id = item.spec_id;
                                 assets_Spec_Val.spec_val = item.spec_val;
 
-                                _unitWork.Add<assets_spec_val, int>(assets_Spec_Val); ;
+                                _unitWork.Add<assets_spec_val, int>(assets_Spec_Val); 
                                 _unitWork.Save();
                             }
                         }
@@ -872,6 +485,7 @@ namespace IDC.Application.Nwcali
             }
             catch (Exception ex)
             {
+                msg = ex.Message;
                 return false;
             }
         }
@@ -909,9 +523,9 @@ namespace IDC.Application.Nwcali
         /// <param name="assets_spec_list">动态属性</param>
         /// <param name="sn">sn码</param>
         /// <returns></returns>
-        public bool EditAssets(string customer_id, int passport_id, InsertAssetRequest model)
+        public bool EditAssets(string customer_id, int passport_id, InsertAssetRequest model, out string msg)
         {
-
+            msg = "";
             try
             {
                 assets assetsInfo = _unitWork.Find<assets>(c => c.id == model.Id).FirstOrDefault();
@@ -1038,6 +652,7 @@ namespace IDC.Application.Nwcali
             }
             catch (Exception ex)
             {
+                msg = ex.Message;
                 //LoggerHelper.Error("EditAssets", ex);
                 return false;
             }
@@ -1119,6 +734,7 @@ namespace IDC.Application.Nwcali
                 log.type = 2;
                 log.passport_id = passport_id;
                 log.content = str_content;
+                log.created_on = DateTime.Now;
                 _unitWork.Add<sys_log,int>(log);
 
                 _unitWork.Save();

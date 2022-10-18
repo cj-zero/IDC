@@ -15,7 +15,7 @@ namespace IDC.Repository.Entities.Assets
         public Nullable<System.DateTime> create_time { get; set; }
         public string remark { get; set; }
         public string customer_id { get; set; }
-        public int passport_id { get; set; }
+        public int? passport_id { get; set; }
         
     }
 }
