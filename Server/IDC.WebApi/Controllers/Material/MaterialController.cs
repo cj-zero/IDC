@@ -36,13 +36,25 @@ namespace IDC.WebApi.Controllers.Material
         /// <param name="guid"></param>
         /// <returns></returns>
         [HttpGet]
-        public async Task<TableData> BindGuidSn([FromQuery] string guid, string Sn)
+        public async Task<TableData> BindGuidSn([FromQuery] string guid, string sn)
         {
             var result = new TableData();
 
             try
             {
-                result = await _app.BindGuidSn(guid, Sn);
+                if (string.IsNullOrEmpty(guid))
+                {
+                    result.Message = $"Guid不能为空";
+                    result.Code = 500;
+                    return result;
+                }
+                if (string.IsNullOrEmpty(sn))
+                {
+                    result.Message = $"序列号不能为空";
+                    result.Code = 500;
+                    return result;
+                }
+                result = await _app.BindGuidSn(guid, sn);
             }
             catch (Exception ex)
             {
