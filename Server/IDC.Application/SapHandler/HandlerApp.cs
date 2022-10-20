@@ -298,9 +298,7 @@ namespace IDC.Application.SapHandler
                 double theprice = 0;
                 double.TryParse(oact.Price, out theprice);
                 dts.Lines.UnitPrice = theprice;
-                dts.Lines.UserFields.Fields.Item("U_WLLY").Value = oact.U_WLLY;
                 dts.Lines.UserFields.Fields.Item("U_YYFX").Value = oact.U_YYFX;
-                dts.Lines.UserFields.Fields.Item("U_ZXDH").Value = oact.U_ZXDH;
                 dts.Lines.UserFields.Fields.Item("U_TYWP").Value = oact.U_TYWP;
                 dts.Lines.UserFields.Fields.Item("U_CPH").Value = oact.U_CPH;
                 dts.Lines.UserFields.Fields.Item("U_TYSL").Value = oact.U_TYSL;
@@ -346,7 +344,7 @@ namespace IDC.Application.SapHandler
                 //opor.sbo_id = Define.Sbo_Id;
                 foreach (var item in por1s)
                 {
-                    updateStr.AppendFormat($@"update buy_por1 set U_WLLY='{item.U_WLLY}',U_YYFX='{item.U_YYFX}',U_ZXDH='{item.U_ZXDH}',U_CPH='{item.U_CPH}',U_TYWP='{item.U_TYWP}',U_TYSL='{item.U_TYSL}',Price={item.Price},LineTotal={item.LineTotal} WHERE DocEntry={docNum} and LineNum={item.LineNum} and sbo_id={Define.Sbo_Id};");
+                    updateStr.AppendFormat($@"update buy_por1 set U_YYFX='{item.U_YYFX}',U_CPH='{item.U_CPH}',U_TYWP='{item.U_TYWP}',U_TYSL='{item.U_TYSL}',Price={item.Price},LineTotal={item.LineTotal} WHERE DocEntry={docNum} and LineNum={item.LineNum} and sbo_id={Define.Sbo_Id};");
                     updateStr.AppendLine();
                 }
                 if (updateStr.Length > 0)
