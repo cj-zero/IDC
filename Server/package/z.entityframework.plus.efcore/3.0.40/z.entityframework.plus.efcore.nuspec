@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Z.EntityFramework.Plus.EFCore</id>
+    <version>3.0.40</version>
+    <title>EntityFramework Plus (EF Core) | Full Version</title>
+    <authors>ZZZ Projects Inc.</authors>
+    <owners>ZZZ Projects Inc.</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/zzzprojects/EntityFramework-Plus/blob/master/LICENSE</licenseUrl>
+    <projectUrl>http://entityframework-plus.net/</projectUrl>
+    <iconUrl>https://zzzprojects.github.io/images/logo/logo-64.png</iconUrl>
+    <description>EF+ Full Version | C# Entity Framework Utilities (Bulk Operations | Batch Delete | Batch Update | Query Cache | Query Filter | Query Future | Query Include | Audit)
+
+**IMPORTANT**
+- For EF Core 3.x, use the latest EF Plus v3.x version
+- For EF Core 2.x, use the latest EF Plus v2.x version</description>
+    <summary>EF+ Full Version | C# Entity Framework Utilities (Bulk Operations | Batch Delete | Batch Update | Query Cache | Query Filter | Query Future | Query Include | Audit)</summary>
+    <copyright>Copyright © ZZZ Projects Inc.</copyright>
+    <tags>Entity Framework Core entity-framework-core EntityFrameworkCore EF EFCore EntityFramework Audit Batch Cache</tags>
+    <dependencies>
+      <group targetFramework=".NETStandard2.1">
+        <dependency id="Microsoft.CSharp" version="4.6.0" />
+        <dependency id="Microsoft.EntityFrameworkCore.Relational" version="3.0.0" />
+        <dependency id="System.Reflection.Emit" version="4.6.0" />
+        <dependency id="System.Reflection.TypeExtensions" version="4.6.0" />
+        <dependency id="Z.Expressions.Eval" version="3.1.6" />
+        <dependency id="Z.EntityFramework.Extensions.EFCore" version="3.0.52" />
+      </group>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="Microsoft.CSharp" version="4.6.0" />
+        <dependency id="Microsoft.EntityFrameworkCore.Relational" version="3.1.0" />
+        <dependency id="System.Reflection.Emit" version="4.6.0" />
+        <dependency id="System.Reflection.TypeExtensions" version="4.6.0" />
+        <dependency id="Z.Expressions.Eval" version="3.1.6" />
+        <dependency id="Z.EntityFramework.Extensions.EFCore" version="3.0.52" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>

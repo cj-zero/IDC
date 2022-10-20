@@ -1,6 +1,7 @@
 ﻿using IDC.Application.Material;
 using IDC.Application.Material.Request;
 using IDC.Infrastructure.Returned;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
@@ -27,6 +28,41 @@ namespace IDC.WebApi.Controllers.Material
         public async Task<TableData> GetMaterialList([FromQuery]QueryMaterialListReq req) 
         {
             return await _app.GetMaterialList(req);
+        }
+
+        /// <summary>
+        /// 绑定Guid和Sn
+        /// </summary>
+        /// <param name="guid"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<TableData> BindGuidSn([FromQuery] string guid, string sn)
+        {
+            var result = new TableData();
+
+            try
+            {
+                if (string.IsNullOrEmpty(guid))
+                {
+                    result.Message = $"Guid不能为空";
+                    result.Code = 500;
+                    return result;
+                }
+                if (string.IsNullOrEmpty(sn))
+                {
+                    result.Message = $"序列号不能为空";
+                    result.Code = 500;
+                    return result;
+                }
+                result = await _app.BindGuidSn(guid, sn);
+            }
+            catch (Exception ex)
+            {
+                result.Code = 500;
+                result.Message = ex.InnerException?.Message ?? ex.Message;
+            }
+
+            return result;
         }
 
         /// <summary>

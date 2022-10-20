@@ -16,14 +16,17 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using IDC.Repository.Entities.Nwcali;
 using IDC.Repository.Entities.Sap;
+using IDC.Repository.Core;
 
 namespace IDC.Application.Material
 {
     public class MaterialApp : BaseApp
     {
         public IConfiguration Configuration { get; }
-        public MaterialApp(IRepositoryBase repositoryBase, IAuth auth, IConfiguration configuration) : base(auth, repositoryBase)
+        protected IUnitWork _unitWork;
+        public MaterialApp(IRepositoryBase repositoryBase, IAuth auth, IConfiguration configuration, IUnitWork unitWork) : base(auth, repositoryBase)
         {
+            _unitWork = unitWork;
             Configuration = configuration;
         }
         public async Task<TableData> GetMaterialList(QueryMaterialListReq req)
@@ -81,6 +84,36 @@ namespace IDC.Application.Material
             return result;
         }
 
+        public async Task<TableData> BindGuidSn(string guid, string sn)
+        {
+            TableData result = new TableData();
+            var query = _unitWork.Find<snguidmap>(b => b.Guid == guid ).FirstOrDefault();
+            if (query != null)
+            {
+                if (query.Sn == sn)
+                {
+                    result.Message = "已绑定，无需重复绑定！";
+                }
+                else
+                {
+                    result.Message = $"当前Guid已经与序列号{query.Sn}绑定成功，无法再次绑定！";
+                }
+                result.Code = 500;
+                return result;
+            }
+            else
+            {
+                var info = new snguidmap()
+                {
+                    Guid = guid,
+                    Sn = sn,
+                };
+                _unitWork.Add<snguidmap,int>(info);
+                _unitWork.Save();
+                result.Message = "绑定成功！";
+            }
+            return result;
+        }
         /// <summary>
         /// 根据guid获取下位机程序的版本信息
         /// </summary>
@@ -88,23 +121,62 @@ namespace IDC.Application.Material
         /// <returns></returns>
         public async Task<TableData> GetXWJVersion(string guid)
         {
-            //var result = new TableData();
-            var version = Configuration.GetSection("XWJVersion").Value;
-            //if (version == "CN")
-            //{
-            //    result.Data = new
-            //    {
-            //        lang = $"{Version.CN}"
-            //    };
-            //}
-            //else
-            //{
-            //    result.Data = new
-            //    {
-            //        lang = $"{Version.EN}"
-            //    };
-            //}
-            //return result;
+            var result = new TableData();
+            var query = _unitWork.Find<snguidmap>(b => b.Guid == guid).FirstOrDefault();
+            if (query == null)
+            {
+                result.Data = new
+                {
+                    lang = "NULL"
+                };
+                result.Message = "请先绑定GUID与SN码！";
+                return result;
+            }
+            var sql = $@"select t3.* from OINS t1
+                    inner join(SELECT DocEntry, MIN(BaseEntry) as BaseEntry from DLN1 where BaseType = 17 group by DocEntry )  t2 on t1.deliveryNo = t2.DocEntry
+                    inner join ORDR t3 on t2.BaseEntry = t3.DocEntry
+                    where t1.manufSN = '{query.Sn}'";
+           // if (orderNo == 25936 || orderNo == 26777 || orderNo == 25994 || orderNo == 26709 || orderNo == 23241 || orderNo == 26164 || orderNo == 27294)
+           
+            var data = await _repositoryBase.FindAsync<ORDR>(sql, null);
+            var DocEntry = data?.FirstOrDefault()?.DocEntry;
+            if (DocEntry == null)
+            {
+                result.Data = new
+                {
+                    lang = "NULL" 
+                };
+                result.Message = "未查询到销售单！";
+                return result;
+            }
+            string str3 = $"select * from rdr1 where ITEMCODE ='S111-Firmware-EN' and  DocEntry= '{DocEntry}'";
+            var rdrModel = (await _repositoryBase.GetAsync<RDR1>(str3)).ToList();
+            if (rdrModel.Count() > 0)
+            {
+                result.Data = new
+                {
+                    lang = "EN"
+                };
+                return result;
+            }
+            else
+            {
+                result.Data = new
+                {
+                    lang = "CN"
+                };
+                return result;
+            }
+
+        }
+
+        /// <summary>
+        /// 根据guid获取下位机程序的版本信息
+        /// </summary>
+        /// <param name="guid"></param>
+        /// <returns></returns>
+        public async Task<TableData> GetXWJVersion1(string guid)
+        {
             var result = new TableData();
             string sql = $"select orderno from devicetestlog where lowguid = '{guid}' order by id desc LIMIT 1";
             var data = await _repositoryBase.FindAsync<DeviceTestLog>(sql, null);
@@ -113,11 +185,12 @@ namespace IDC.Application.Material
             {
                 result.Data = new
                 {
-                    lang = "NULL" 
+                    lang = "NULL"
                 };
                 return result;
             }
-            if (orderNo == 25936 || orderNo == 26777 || orderNo == 25994 || orderNo == 26709 || orderNo == 23241 || orderNo == 26164 || orderNo == 27294)
+            if (orderNo == 25936 || orderNo == 26777 || orderNo == 25994 || orderNo == 26709 
+                || orderNo == 23241 || orderNo == 26164 || orderNo == 27294 || orderNo == 27294)
             {
                 result.Data = new
                 {
@@ -157,60 +230,6 @@ namespace IDC.Application.Material
             }
 
         }
-        /// <summary>
-        /// 根据sn获取下位机程序的版本信息
-        /// </summary>
-        /// <param name="guid"></param>
-        /// <returns></returns>
-        public async Task<TableData> GetXWJVersionBySn(string sn)
-        {
-            string guid = "";
-            var result = new TableData();
-            string sql = $"select orderno from devicetestlog where lowguid = '{guid}' order by id desc LIMIT 1";
-            var data = await _repositoryBase.FindAsync<DeviceTestLog>(sql, null);
-            var orderNo = data?.FirstOrDefault()?.orderno;
-            if (orderNo == null)
-            {
-                result.Data = new
-                {
-                    lang = "NULL"
-                };
-                return result;
-            }
-            if (orderNo == 25936 || orderNo == 26777 || orderNo == 25994 || orderNo == 26709)
-            {
-                result.Data = new
-                {
-                    lang = "EN"
-                };
-                return result;
-            }
-            string str2 = $"SELECT OriginAbs from owor where DocEntry = {orderNo}";
-            var OWORModel = (await _repositoryBase.FindAsync<OWOR>(str2, null)).FirstOrDefault();
-
-
-            string str3 = $"select * from rdr1 where ITEMCODE ='S111-Firmware-EN' and  DocEntry= '{OWORModel.OriginAbs}'";
-            var rdrModel = (await _repositoryBase.GetAsync<RDR1>(str3)).ToList();
-            if (rdrModel.Count() > 0)
-            {
-                result.Data = new
-                {
-                    lang = "EN"
-                };
-                return result;
-            }
-            else
-            {
-                result.Data = new
-                {
-                    lang = "CN"
-                };
-                return result;
-            }
-
-        }
-
-
         /// <summary>
         /// 根据设备guid获取中位机软件版本
         /// </summary>
