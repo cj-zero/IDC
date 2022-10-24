@@ -160,11 +160,21 @@ namespace IDC.Application.Nwcali
         /// <returns></returns>
         public async Task<TableData> Load(QueryassetListReq request)
         {
-            var loginContext = _auth.GetCurrentUser();
-
-
+           // var loginContext = _auth.GetCurrentUser();
             var result = new TableData();
-            var objs = _unitWork.Find<LaboratoryAsset>(null);
+
+            if (string.IsNullOrEmpty(request.CustomerId))
+            {
+                result.Code = 500;
+                result.Message = "企业id不能为空!";
+                return result;
+            }
+            var objs = _unitWork.Find<LaboratoryAsset>(a => a.CustomerId == request.CustomerId);
+            if (request.isMap)
+            {
+                var listMap = _unitWork.Find<PortfolioAssetsMap>(a => a.SourceType == 1).Select(a => a.AssetId).ToList();
+                objs = objs.Where(a => !listMap.Contains(a.Id));
+            }
             var Assets = objs.WhereIf(!string.IsNullOrWhiteSpace(request.Id.ToString()), u => u.Id == request.Id).
                 WhereIf(!string.IsNullOrWhiteSpace(request.AssetCategory), u => u.AssetCategory.Contains(request.AssetCategory)).
                 WhereIf(!string.IsNullOrWhiteSpace(request.AssetStockNumber), u => u.AssetStockNumber.Contains(request.AssetStockNumber)).
@@ -364,6 +374,7 @@ namespace IDC.Application.Nwcali
             LaboratoryAsset obj = new LaboratoryAsset();
             obj.Id = req.Id > 0 ? (int)req.Id : 0;
             obj.AssetStatus = req.AssetStatus;
+            obj.CustomerId = req.CustomerId;
             obj.AssetCategory = req.AssetCategory;
             obj.OrgName = req.OrgName;
             obj.AssetType = req.AssetType;
@@ -386,11 +397,11 @@ namespace IDC.Application.Nwcali
             obj.AssetCreateTime = req.AssetCreateTime;
             obj.AssetCreateUser = req.AssetCreateUser;
             obj.LaboratoryAssetCategory = new List<LaboratoryAssetCategory>();
-            foreach (var item in req.AssetCategorys)
+            foreach (var item in req.laboratoryAssetCategory)
             {
                 obj.LaboratoryAssetCategory.Add(new LaboratoryAssetCategory()
                 {
-                    LaboratoryAssetId = item.AssetId,
+                    LaboratoryAssetId = item.LaboratoryAssetId,
                     CategoryNumber = item.CategoryNumber,
                     CategoryOhms = item.CategoryOhms,
                     CategoryNondeterminacy = item.CategoryNondeterminacy,
@@ -400,7 +411,9 @@ namespace IDC.Application.Nwcali
                 });
             }
 
-            var user = _auth.GetCurrentUser();
+            //var user = _auth.GetCurrentUser();
+            var account = _unitWork.Find<accounts>(a => a.status == 1 && a.passport_id == req.PassPortId).FirstOrDefault();
+
             var ZCNumber = "JZ" + Convert.ToInt32(req.AssetSerial).ToString("00") + DateTime.Today.ToString("yy") + DateTime.Today.ToString("MM");
             var Listasset = _unitWork.Find<LaboratoryAsset>(u => u.AssetNumber.Contains(ZCNumber)).OrderByDescending(u => u.AssetNumber).FirstOrDefault();
             if (Listasset == null)
@@ -414,11 +427,11 @@ namespace IDC.Application.Nwcali
             }
             obj.AssetNumber = ZCNumber;
             obj.AssetCreateTime = DateTime.Now;
-            obj.AssetCreateUser = user.UserName;
+            obj.AssetCreateUser = account?.realname;
             int num = 0;
-            if (req.AssetCategorys != null)
+            if (req.laboratoryAssetCategory != null)
             {
-                req.AssetCategorys.ForEach(a => a.CategoryAort = ++num);
+                req.laboratoryAssetCategory.ForEach(a => a.CategoryAort = ++num);
             }
             obj = await _unitWork.AddAsync<LaboratoryAsset, int>(obj);
             await _unitWork.SaveAsync();
@@ -440,7 +453,7 @@ namespace IDC.Application.Nwcali
             eassetoperationReq.InspectId = AssetInspectInf.Id;
             eassetoperationReq.OperationContent = "创建资产成功";
             eassetoperationReq.OperationCreateTime = DateTime.Now;
-            eassetoperationReq.OperationUser = user.UserName;
+            eassetoperationReq.OperationUser = account?.realname;
             await _unitWork.AddAsync<LaboratoryAssetOperation>(eassetoperationReq);
             await _unitWork.SaveAsync();
         }
@@ -474,29 +487,27 @@ namespace IDC.Application.Nwcali
                 ModifyModel.Append("修改校准证书" + @"\r\n");
                 inspect = true;
             }
-            LaboratoryAsset asset = new LaboratoryAsset()
+
+            model.AssetAdmin = obj.AssetAdmin;
+            model.AssetEndDate = obj.AssetEndDate;
+            model.AssetStartDate = obj.AssetStartDate;
+            model.AssetDescribe = obj.AssetDescribe;
+            model.AssetHolder = obj.AssetHolder;
+            model.AssetCalibrationCertificate = obj.AssetCalibrationCertificate;
+            model.AssetInspectDataTwo = obj.AssetInspectDataTwo;
+            model.AssetRemarks = obj.AssetRemarks;
+            model.AssetInspectType = obj.AssetInspectType;
+            model.AssetStatus = obj.AssetStatus;
+            model.OrgName = obj.OrgName;
+            model.AssetInspectWay = obj.AssetInspectWay;
+            model.AssetImage = obj.AssetImage;
+            model.AssetTCF = obj.AssetTCF;
+            model.AssetInspectDataOne = obj.AssetInspectDataOne;
+
+            _unitWork.Update(model);
+            if (obj.laboratoryAssetCategory != null && obj.laboratoryAssetCategory.Count > 0)
             {
-                Id = (int)obj.Id,
-                AssetAdmin = obj.AssetAdmin,
-                AssetEndDate = obj.AssetEndDate,
-                AssetStartDate = obj.AssetStartDate,
-                AssetDescribe = obj.AssetDescribe,
-                AssetHolder = obj.AssetHolder,
-                AssetCalibrationCertificate = obj.AssetCalibrationCertificate,
-                AssetInspectDataTwo = obj.AssetInspectDataTwo,
-                AssetRemarks = obj.AssetRemarks,
-                AssetInspectType = obj.AssetInspectType,
-                AssetStatus = obj.AssetStatus,
-                OrgName = obj.OrgName,
-                AssetInspectWay = obj.AssetInspectWay,
-                AssetImage = obj.AssetImage,
-                AssetTCF = obj.AssetTCF,
-                AssetInspectDataOne = obj.AssetInspectDataOne,
-            };
-            _unitWork.Update(asset);
-            if (obj.AssetCategorys != null && obj.AssetCategorys.Count > 0)
-            {
-                await _unitWork.BatchUpdateAsync<LaboratoryAssetCategory>(obj.AssetCategorys.MapToList<LaboratoryAssetCategory>().ToArray());
+                await _unitWork.BatchUpdateAsync<LaboratoryAssetCategory>(obj.laboratoryAssetCategory.MapToList<LaboratoryAssetCategory>().ToArray());
             }
             //添加一条送检记录
             if (inspect)
@@ -520,8 +531,10 @@ namespace IDC.Application.Nwcali
                 eassetoperationReq.InspectId = InspectId;
                 eassetoperationReq.OperationContent = ModifyModel.ToString();
                 eassetoperationReq.OperationCreateTime = DateTime.Now;
-                var user = _auth.GetCurrentUser();
-                eassetoperationReq.OperationUser = user.UserName;
+
+                var account = _unitWork.Find<accounts>(a => a.status == 1 && a.passport_id == obj.PassPortId).FirstOrDefault();
+                //var user = _auth.GetCurrentUser();
+                eassetoperationReq.OperationUser = account?.realname;
                 await _unitWork.AddAsync<LaboratoryAssetOperation>(eassetoperationReq);
             }
             await _unitWork.SaveAsync();

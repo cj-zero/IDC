@@ -126,8 +126,9 @@ namespace IDC.Repository.Entities.Nwcali
         /// 创建人
         /// </summary>
         public string AssetCreateUser { get; set; }
+        public string CustomerId { get; set; }
 
-
+        
         public  List<LaboratoryAssetCategory> LaboratoryAssetCategory { get; set; }
 
         /// <summary>

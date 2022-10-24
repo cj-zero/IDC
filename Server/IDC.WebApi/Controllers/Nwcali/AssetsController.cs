@@ -49,6 +49,7 @@ namespace IDC.WebApi.Controllers.Nwcali
         /// <param name="PageCount"></param>
         /// <param name="PageIndex"></param>
         /// <param name="is_show">是否在资产列表显示</param>
+        /// <param name="isMap">是否排除已组合资产</param>
         [HttpGet]
         public async Task<TableData> AssetsList(string customer_id, int room_id, int category_id, int status, DateTime? guarantee_period_end,
             string key, int purchase_order_no, string user_name, int PageCount, int PageIndex, int is_show = 1,bool isMap = false)
@@ -627,14 +628,6 @@ namespace IDC.WebApi.Controllers.Nwcali
         #endregion
 
 
-        [HttpGet]
-        public void test()
-        {
-            var str = "153_stepDetail";
-            var xxx = AppRedis.Get<string>(str);
-            if (AppRedis.Exists(str))
-                AppRedis.Del(str);
-        }
 
     }
 }

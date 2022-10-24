@@ -64,6 +64,8 @@ namespace IDC.Repository.Entities.Nwcali
         /// </summary>
         public string CreateUserId { get; set; }
 
+        public string CustomerId { get; set; }
+
         public override void GenerateDefaultKeyVal()
         {
 

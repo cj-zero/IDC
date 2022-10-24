@@ -50,5 +50,11 @@ namespace IDC.Application.Nwcali.Request
         /// </summary>
         public System.DateTime? AssetEndDate { get; set; }
         //todo:添加自己的请求字段
+
+        public string CustomerId { get; set; }
+        /// <summary>
+        /// 是否排除已组合资产
+        /// </summary>
+        public bool isMap { get; set; } = false;
     }
 }

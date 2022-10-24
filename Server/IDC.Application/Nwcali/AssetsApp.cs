@@ -70,6 +70,11 @@ namespace IDC.Application.Nwcali
             DateTime dt = DateTime.Now;
             var is_show_identity = is_show == 1 ? true : false;
             var query = _unitWork.Find<assets>(c => c.customer_id == customer_id && c.is_private == false && c.is_delete == false && c.is_show == is_show_identity);
+            if (isMap)
+            {
+                var listMap = _unitWork.Find<PortfolioAssetsMap>(a => a.SourceType == 2).Select(a => a.AssetId).ToList();
+                query = query.Where(a => !listMap.Contains(a.id));
+            }
             List<int> category_ids = new List<int>();
             if (category_id > 0)
             {
@@ -238,35 +243,35 @@ namespace IDC.Application.Nwcali
                 var category_info = category_list.FirstOrDefault(d => d.id == c.category_id);
                 list.Add(new
                 {
-                    c.assets_no,
-                    c.brand,
-                    c.category_id,
-                    c.color,
-                    c.cover_img,
-                    c.created_on,
-                    c.guarantee_period,
+                    c.assets_no,//资产编号
+                    c.brand,//品牌
+                    c.category_id,//类别ID
+                    c.color,//颜色
+                    c.cover_img,//图片
+                    c.created_on,//创建时间
+                    c.guarantee_period,//保修期
                     c.guid,
                     c.id,
-                    c.is_bts,
-                    c.name,
+                    c.is_bts,//是否bts设备
+                    c.name,//资产名称
                     c.sn,
-                    c.spec_no,
-                    c.place,
-                    c.purchase_date,
-                    c.serial,
-                    c.purchase_order_no,
-                    c.use_type,
-                    c.unit,
-                    category_name = category_info == null ? "" : category_info.name,
-                    status_txt,
-                    room_id = room_info == null ? 0 : room_info.room_id,
-                    room = room_info == null ? "" : room_info.name,
-                    use_type_txt,
+                    c.spec_no,// 型号
+                    c.place,//存放地点
+                    c.purchase_date,//采购时间
+                    c.serial,//数量
+                    c.purchase_order_no,//采购订单号
+                    c.use_type,//使用类型
+                    c.unit,//单位
+                    category_name = category_info == null ? "" : category_info.name,//类别名称
+                    status_txt,//状态
+                    room_id = room_info == null ? 0 : room_info.room_id,//实验室id
+                    room = room_info == null ? "" : room_info.name,//实验室
+                    use_type_txt,//使用类型
                     user,
                     user_id,
-                    status = statusValue,
-                    book_id,
-                    c.item_code
+                    status = statusValue,//状态
+                    book_id,//预约id
+                    c.item_code//物料编码
 
                 });
             }
