@@ -87,19 +87,15 @@ namespace IDC.Application.Material
         public async Task<TableData> BindGuidSn(string guid, string sn)
         {
             TableData result = new TableData();
-            var query = _unitWork.Find<snguidmap>(b => b.Guid == guid ).FirstOrDefault();
+            var query = _unitWork.Find<snguidmap>(b => b.Guid == guid && b.Sn == sn).FirstOrDefault();
             if (query != null)
             {
                 if (query.Sn == sn)
                 {
                     result.Message = "已绑定，无需重复绑定！";
+                    result.Code = 500;
+                    return result;
                 }
-                else
-                {
-                    result.Message = $"当前Guid已经与序列号{query.Sn}绑定成功，无法再次绑定！";
-                }
-                result.Code = 500;
-                return result;
             }
             else
             {
@@ -107,6 +103,7 @@ namespace IDC.Application.Material
                 {
                     Guid = guid,
                     Sn = sn,
+                    CreateTime = DateTime.Now,
                 };
                 _unitWork.Add<snguidmap,int>(info);
                 _unitWork.Save();
@@ -122,7 +119,7 @@ namespace IDC.Application.Material
         public async Task<TableData> GetXWJVersion(string guid)
         {
             var result = new TableData();
-            var query = _unitWork.Find<snguidmap>(b => b.Guid == guid).FirstOrDefault();
+            var query = _unitWork.Find<snguidmap>(b => b.Guid == guid).OrderByDescending(a => a.CreateTime).FirstOrDefault();
             if (query == null)
             {
                 result.Data = new

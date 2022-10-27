@@ -11,6 +11,7 @@ namespace IDC.Repository.Entities.Material
     {
         public string Guid { get; set; }
         public string Sn { get; set; }
+        public DateTime? CreateTime { get; set; }
         public override void GenerateDefaultKeyVal()
         {
 

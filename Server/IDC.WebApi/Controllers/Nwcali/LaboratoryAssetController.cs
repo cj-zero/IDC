@@ -108,6 +108,18 @@ namespace IDC.WebApi.Controllers.Nwcali
             var result = new TableData();
             try
             {
+                if (string.IsNullOrEmpty(req.CustomerId))
+                {
+                    result.Message = "企业id不能为空！";
+                    result.Code = 500;
+                    return result;
+                }
+                if (req.PassPortId <=0)
+                {
+                    result.Message = "用户id不能为空！";
+                    result.Code = 500;
+                    return result;
+                }
                 await _app.Add(req);
             }
             catch (Exception ex)
@@ -128,6 +140,12 @@ namespace IDC.WebApi.Controllers.Nwcali
             var result = new TableData();
             try
             {
+                if (req.PassPortId <= 0)
+                {
+                    result.Message = "用户id不能为空！";
+                    result.Code = 500;
+                    return result;
+                }
                 await _app.Update(req);
             }
             catch (Exception ex)
@@ -162,7 +180,7 @@ namespace IDC.WebApi.Controllers.Nwcali
         /// </summary>
         /// <param name="sn"></param>
         /// <returns></returns>
-        [HttpPost]
+        [HttpGet]
         public async Task<TableData> GetAsset(int assetid)
         {
             var result = new TableData();
@@ -192,7 +210,7 @@ namespace IDC.WebApi.Controllers.Nwcali
                 var file = files[0];
                 //保存文件
                 var fileResp = await _fileApp.UploadFileToHuaweiOBS($"nwcail/asset/{file.FileName}", file);
-                result.Data = fileResp;
+                result =  fileResp;
             }
             catch (Exception ex)
             {
@@ -296,5 +314,34 @@ namespace IDC.WebApi.Controllers.Nwcali
             return (HttpResponseMessage)result;
         }
 
+
+        /// <summary>
+        /// 获取字典数据
+        /// </summary>
+        /// <param name="ids"> </param>
+        [HttpGet]
+        public async Task<TableData> GetListCategoryName()
+        {
+            //暂时直接返回
+            TableData result = new TableData();
+            result.Data = "[{\"name\":\"正常\",\"typeId\":\"SYS_AssetStatus\",\"dtValue\":\"1\",\"description\":\"\"}," +
+                "{\"name\":\"报修\",\"typeId\":\"SYS_AssetStatus\",\"dtValue\":\"2\",\"description\":\"\"}," +
+                "{\"name\":\"借出\",\"typeId\":\"SYS_AssetStatus\",\"dtValue\":\"4\",\"description\":\"\"}," +
+                "{\"name\":\"送检\",\"typeId\":\"SYS_AssetStatus\",\"dtValue\":\"3\",\"description\":\"\"}," +
+                "{\"name\":\"售出\",\"typeId\":\"SYS_AssetStatus\",\"dtValue\":\"5\",\"description\":\"\"}," +
+                "{\"name\":\"超期\",\"typeId\":\"SYS_AssetStatus\",\"dtValue\":\"6\",\"description\":\"\"}," +
+                "{\"name\":\"报废\",\"typeId\":\"SYS_AssetStatus\",\"dtValue\":\"7\",\"description\":\"7\"}," +
+                "{\"name\":\"万用表\",\"typeId\":\"SYS_AssetCategory\",\"dtValue\":\"1\",\"description\":\"\"}," +
+                "{\"name\":\"工装\",\"typeId\":\"SYS_AssetCategory\",\"dtValue\":\"2\",\"description\":\"\"}," +
+                "{\"name\":\"分流器\",\"typeId\":\"SYS_AssetCategory\",\"dtValue\":\"3\",\"description\":\"\"}," +
+                "{\"name\":\"标准源\",\"typeId\":\"SYS_AssetCategory\",\"dtValue\":\"4\",\"description\":\"\"}," +
+                "{\"name\":\"内校\",\"typeId\":\"SYS_AssetSJWay\",\"dtValue\":\"1\",\"description\":\"\"}," +
+                "{\"name\":\"外检\",\"typeId\":\"SYS_AssetSJWay\",\"dtValue\":\"2\",\"description\":\"\"}," +
+                "{\"name\":\"外校\",\"typeId\":\"SYS_AssetSJWay\",\"dtValue\":\"2\",\"description\":\"\"}," +
+                "{\"name\":\"校准\",\"typeId\":\"SYS_AssetSJType\",\"dtValue\":\"1\",\"description\":\"\"}," +
+                "{\"name\":\"检定\",\"typeId\":\"SYS_AssetSJType\",\"dtValue\":\"2\",\"description\":\"\"}]";
+
+            return result;
+        }
     }
 }

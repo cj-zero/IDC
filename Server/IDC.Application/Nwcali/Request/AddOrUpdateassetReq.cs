@@ -113,11 +113,20 @@ namespace IDC.Application.Nwcali.Request
         /// 创建人
         /// </summary>
         public string AssetCreateUser { get; set; }
+        /// <summary>
+        /// 企业ID
+        /// </summary>
+        public string CustomerId { get; set; }
+        /// <summary>
+        /// 用户ID
+        /// </summary>
+        public int PassPortId { get; set; }
+
 
         //todo:添加自己的请求字段
         /// <summary>
         /// 
         /// </summary>
-        public virtual List<AddOrUpdateassetcategoryReq> AssetCategorys { get; set; }
+        public virtual List<AddOrUpdateassetcategoryReq> laboratoryAssetCategory { get; set; }
     }
 }

@@ -16,7 +16,7 @@ namespace IDC.Application.Nwcali.Request
         /// <summary>
         /// 资产ID
         /// </summary>
-        public int? AssetId { get; set; }
+        public int? LaboratoryAssetId { get; set; }
         /// <summary>
         /// 序号
         /// </summary>
