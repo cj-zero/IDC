@@ -399,7 +399,7 @@ namespace IDC.Application.WMS
         public async Task<TableData> ProductReceiptValidQty(int productNum)
         {
             TableData result = new TableData();
-            string strSqlOWOAR = string.Format("select ItemCode,PlannedQty,CmpltQty,RjctQty from owor where DocEntry={0}", productNum);
+            string strSqlOWOAR = string.Format("select ItemCode,PlannedQty,CmpltQty,RjctQty from owor where [Status]!='C' AND DocEntry={0}", productNum);
             var OWORModel = (await _repositoryBase.FindAsync<OWOR>(strSqlOWOAR, null)).FirstOrDefault();
             if (OWORModel != null)
             {
