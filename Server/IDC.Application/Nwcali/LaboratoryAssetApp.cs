@@ -547,7 +547,9 @@ namespace IDC.Application.Nwcali
         /// <param name="ids">资产id,存在多个id ,用因为逗号隔开 </param>
         public async Task<List<LaboratoryAsset>> GetLaboratoryAssetList(string ids)
         {
-            var idarry = ids.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            //var idarry = ids.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+            var idarry = ids.Split(",");
             List<int> idList = new List<int>();
             foreach (var id in idarry)
             {
