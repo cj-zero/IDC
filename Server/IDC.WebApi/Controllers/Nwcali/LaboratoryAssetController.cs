@@ -255,7 +255,7 @@ namespace IDC.WebApi.Controllers.Nwcali
                 gp.DrawImage(qrCodeImage, 65, 65);
                 //图片处理，加上序列号
                 WatermarkText waterText = new WatermarkText();
-                waterText.Text = "AssetsNo:" + asset.AssetNumber;
+                waterText.Text = "SN:" + asset.AssetNumber;
                 waterText.FontFamily = "微软雅黑";
                 waterText.FontColor = "#000000";
                 waterText.FontSize = 42;
