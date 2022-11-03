@@ -46,10 +46,10 @@ namespace IDC.Application.Nwcali
         {
             TableData result = new TableData();
 
-            var info = _unitWork.Find<LaboratoryAsset>(a => a.AssetStockNumber == sn).FirstOrDefault();
+            var info = _unitWork.Find<LaboratoryAsset>(a => a.AssetStockNumber == sn || a.Guid == sn).FirstOrDefault();
             if (info == null)
             {
-                result.Message = "请输入正确的SN编码！";
+                result.Message = "请输入正确的SN/Guid编码！";
                 result.Code = 500;
                 return result;
             }
@@ -191,6 +191,7 @@ namespace IDC.Application.Nwcali
                 .Take(request.limit).Select(L => new
                 {
                     Id = L.Id,
+                    Guid = L.Guid,
                     AssetStatus = L.AssetStatus,   //状态
                     AssetCategory = L.AssetCategory,//类别
                     OrgName = L.OrgName,//部门
@@ -373,6 +374,7 @@ namespace IDC.Application.Nwcali
             //var obj1 = req.MapTo<Asset>();
             LaboratoryAsset obj = new LaboratoryAsset();
             obj.Id = req.Id > 0 ? (int)req.Id : 0;
+            obj.Guid = req.Guid;
             obj.AssetStatus = req.AssetStatus;
             obj.CustomerId = req.CustomerId;
             obj.AssetCategory = req.AssetCategory;
@@ -482,12 +484,14 @@ namespace IDC.Application.Nwcali
             if (model.AssetEndDate != obj.AssetEndDate) ModifyModel.Append("失效日期修改为：" + obj.AssetEndDate + @"\r\n");
             if (model.AssetInspectWay != obj.AssetInspectWay) ModifyModel.Append("送检方式修改为：" + obj.AssetInspectWay + @"\r\n");
             if (model.AssetImage != obj.AssetImage) ModifyModel.Append("修改图片" + @"\r\n");
+            if (model.Guid != obj.Guid) ModifyModel.Append("Guid修改为" + obj.Guid + @"\r\n");
             if (model.AssetCalibrationCertificate != obj.AssetCalibrationCertificate)
             {
                 ModifyModel.Append("修改校准证书" + @"\r\n");
                 inspect = true;
             }
 
+            model.Guid = obj.Guid;
             model.AssetAdmin = obj.AssetAdmin;
             model.AssetEndDate = obj.AssetEndDate;
             model.AssetStartDate = obj.AssetStartDate;

@@ -15,6 +15,7 @@ namespace IDC.Repository.Entities.Nwcali
 
         public LaboratoryAsset()
         {
+            this.Guid = string.Empty;
             this.AssetStatus = string.Empty;
             this.AssetCategory = string.Empty;
             this.OrgName = string.Empty;
@@ -42,6 +43,11 @@ namespace IDC.Repository.Entities.Nwcali
         /// 状态
         /// </summary>
         public string AssetStatus { get; set; }
+
+        /// <summary>
+        /// Guid
+        /// </summary>
+        public string Guid { get; set; }
         /// <summary>
         /// 类别
         /// </summary>

@@ -20,6 +20,11 @@ namespace IDC.Application.Nwcali.Request
         /// </summary>
         public int? Id { get; set; }
         /// <summary>
+        /// Guid
+        /// </summary>
+        public string Guid { get; set; }
+
+        /// <summary>
         /// 状态
         /// </summary>
         public string AssetStatus { get; set; }
