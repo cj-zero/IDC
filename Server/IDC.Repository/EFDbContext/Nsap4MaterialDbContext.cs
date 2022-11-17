@@ -23,5 +23,8 @@ namespace IDC.Repository.EFDbContext
         }
 
         public virtual DbSet<snguidmap> snguidmap { get; set; }
+        public virtual DbSet<XWJVersionLog> XWJVersionLog { get; set; }
+
+        
     }
 }
