@@ -170,6 +170,12 @@ namespace IDC.Application.Material
         {
             var result = new TableData();
             var query = _unitWork.Find<snguidmap>(b => b.Guid == guid).OrderByDescending(a => a.CreateTime).FirstOrDefault();
+            if (query == null)
+            {
+                result.Message = "该Guid未绑定SN码！";
+                return result;
+            }
+
             XWJVersionLog info = new XWJVersionLog();
             info.Guid = guid;
             info.Sn = query.Sn;
