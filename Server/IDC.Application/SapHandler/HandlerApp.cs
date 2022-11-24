@@ -520,7 +520,7 @@ namespace IDC.Application.SapHandler
                 {
                     company.GetNewObjectCode(out docNum);
                     errorMsg.Append($"调用接口添加采购收货操作成功,ID[{docNum}]");
-                    await RcddetailErp(docNum, model);
+                    await RcvdetailErp(docNum, model);
                     result.Code = 200;
                     result.Data = new
                     {
@@ -543,7 +543,7 @@ namespace IDC.Application.SapHandler
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        public async Task RcddetailErp(string docNum, RcvddetailReq model)
+        public async Task RcvdetailErp(string docNum, RcvddetailReq model)
         {
             #region 添加主数据
             var opdnsql = @$"INSERT INTO buy_opdn(sbo_id,DocEntry,DocNum,DocType,Printed,DocStatus,ObjType,
@@ -571,10 +571,10 @@ namespace IDC.Application.SapHandler
             #region 添加行数据
             var pdn1sql = @$"INSERT INTO buy_pdn1 (sbo_id,DocEntry,LineNum,TargetType,TrgetEntry,BaseRef,BaseType,BaseEntry,BaseLine,LineStatus,ItemCode,Dscription,
                                 Quantity,Price,Currency,Rate,DiscPrcnt,LineTotal,TotalFrgn,WhsCode,SlpCode,GrossBuyPr,PriceBefDi,DocDate,VatPrcnt,VatGroup,PriceAfVAT,
-                                StockPrice,OpenQty,OpenSum,AcctCode,OrderedQty,TrnsCode,PackQty,BaseCard,StockValue,GTotal,unitMsr,NumPerMsr,LineVat,INMPrice,VisOrder,GrssProfit,FinncPriod,ObjType,OpenCreQty) VALUES (
+                                StockPrice,OpenQty,OpenSum,AcctCode,OrderedQty,TrnsCode,PackQty,BaseCard,GTotal,unitMsr,NumPerMsr,LineVat,INMPrice,VisOrder,GrssProfit,FinncPriod,ObjType,OpenCreQty) VALUES (
                                 @sbo_id,@DocEntry,@LineNum,@TargetType,@TrgetEntry,@BaseRef,@BaseType,@BaseEntry,@BaseLine,@LineStatus,@ItemCode,@Dscription,
                                 @Quantity,@Price,@Currency,@Rate,@DiscPrcnt,@LineTotal,@TotalFrgn,@WhsCode,@SlpCode,@GrossBuyPr,@PriceBefDi,@DocDate,@VatPrcnt,@VatGroup,@PriceAfVAT,
-                                @StockPrice,@OpenQty,@OpenSum,@AcctCode,@OrderedQty,@TrnsCode,@PackQty,@BaseCard,@StockValue,@GTotal,@unitMsr,@NumPerMsr,@LineVat,@INMPrice,@VisOrder,@GrssProfit,@FinncPriod,@ObjType,@OpenCreQty)
+                                @StockPrice,@OpenQty,@OpenSum,@AcctCode,@OrderedQty,@TrnsCode,@PackQty,@BaseCard,@GTotal,@unitMsr,@NumPerMsr,@LineVat,@INMPrice,@VisOrder,@GrssProfit,@FinncPriod,@ObjType,@OpenCreQty)
                                 ";
             var pdn1Obj = await _repositoryBase.GetAsync<PDN1>(@$"select * from PDN1 where DocEntry={docNum}");
             var pdn1s = pdn1Obj.MapToList<buy_pdn1>();
