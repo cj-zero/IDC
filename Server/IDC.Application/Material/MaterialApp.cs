@@ -148,13 +148,13 @@ namespace IDC.Application.Material
             }
             string str3 = $"select * from rdr1 where ITEMCODE ='S111-Firmware-EN' and  DocEntry= '{DocEntry}'";
             var rdrModel = (await _repositoryBase.GetAsync<RDR1>(str3)).ToList();
+
             if (rdrModel.Count() > 0)
             {
                 result.Data = new
                 {
                     lang = "EN"
                 };
-                return result;
             }
             else
             {
@@ -162,11 +162,34 @@ namespace IDC.Application.Material
                 {
                     lang = "CN"
                 };
+            }
+            return result;
+        }
+
+        public async Task<TableData> AddXWJVersionLog(string guid,string version, string computerName, string userId)
+        {
+            var result = new TableData();
+            var query = _unitWork.Find<snguidmap>(b => b.Guid == guid).OrderByDescending(a => a.CreateTime).FirstOrDefault();
+            if (query == null)
+            {
+                result.Message = "该Guid未绑定SN码！";
                 return result;
             }
 
-        }
+            XWJVersionLog info = new XWJVersionLog();
+            info.Guid = guid;
+            info.Sn = query.Sn;
+            info.UserId = userId;
+            info.ComputerName = computerName;
+            info.Version = version;
+            info.CreateTime = DateTime.Now;
+            _unitWork.Add<XWJVersionLog, int>(info);
+            _unitWork.Save();
 
+            result.Code = 200;
+            result.Message = "添加成功";
+            return result;
+        }
         /// <summary>
         /// 根据guid获取下位机程序的版本信息
         /// </summary>

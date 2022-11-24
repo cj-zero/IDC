@@ -225,12 +225,9 @@ namespace IDC.WebApi.Controllers.Nwcali
         /// </summary>
         /// <param name="ids">实验室资产id,存在多个id ,用因为逗号隔开 </param>
         [HttpGet]
-        public async Task<HttpResponseMessage> CreateAssetsQrCode(string ids)
+        public async Task<IActionResult> CreateAssetsQrCode([FromQuery]string ids)
         {
-            TableData apiResult = new TableData();
-
             var assetList = await _app.GetLaboratoryAssetList(ids);
-
             Dictionary<string, Stream> streamList = new Dictionary<string, Stream>();
             string imgFilePath = string.Empty;
             string directory = AppDomain.CurrentDomain.BaseDirectory;
@@ -240,8 +237,6 @@ namespace IDC.WebApi.Controllers.Nwcali
             {
                 //var guid = string.IsNullOrWhiteSpace(asset.guid) == true ? Security.Md5_16ToUpper(asset.id.ToString()).ToString() : asset.guid;
                 // 生成二维码的内容
-
-
                 string param = $"{{\"scene\":\"CaliAssets\",\"parameter\":\"AssetId={asset.Id}&AssetsNo=\"{asset.AssetNumber}\"&SN=\"{asset.AssetStockNumber}\"}}";
                 QRCodeGenerator qrGenerator = new QRCoder.QRCodeGenerator();
                 // QRCodeGenerator.ECCLevel:纠错能力，Q级:可纠错25%的数码错字
@@ -260,7 +255,7 @@ namespace IDC.WebApi.Controllers.Nwcali
                 gp.DrawImage(qrCodeImage, 65, 65);
                 //图片处理，加上序列号
                 WatermarkText waterText = new WatermarkText();
-                waterText.Text = "AssetsNo:" + asset.AssetNumber;
+                waterText.Text = "SN:" + asset.AssetNumber;
                 waterText.FontFamily = "微软雅黑";
                 waterText.FontColor = "#000000";
                 waterText.FontSize = 42;
@@ -299,21 +294,8 @@ namespace IDC.WebApi.Controllers.Nwcali
                 streamList.Add(asset.AssetNumber, mstream);
             }
             var the_zip = ZipHelper.PackageManyZip(streamList);
-
-            var result = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new ByteArrayContent(the_zip.ToArray())
-            };
-            result.Content.Headers.ContentDisposition =
-                new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
-                {
-                    FileName = "QrCodes.zip"
-                };
-            result.Content.Headers.ContentType =
-                new MediaTypeHeaderValue("application/zip");
-            return (HttpResponseMessage)result;
+            return File(the_zip.ToArray(), "application/zip");
         }
-
 
         /// <summary>
         /// 获取字典数据

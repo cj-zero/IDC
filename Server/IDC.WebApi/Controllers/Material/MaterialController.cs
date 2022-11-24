@@ -87,7 +87,27 @@ namespace IDC.WebApi.Controllers.Material
 
             return result;
         }
+        /// <summary>
+        /// 添加版本信息修改记录
+        /// </summary>
+        /// <param name="guid"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<TableData> AddXWJVersionLog(string guid, string version, string computerName, string userId)
+        {
+            var result = new TableData();
+            try
+            {
+                result = await _app.AddXWJVersionLog(guid, version, computerName, userId);
+            }
+            catch (Exception ex)
+            {
+                result.Code = 500;
+                result.Message = ex.InnerException?.Message ?? ex.Message;
+            }
 
+            return result;
+        }
         /// <summary>
         /// 根据设备guid获取中位机软件版本
         /// </summary>
