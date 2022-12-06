@@ -290,6 +290,7 @@ namespace IDC.Application.SapHandler
             dts.UserFields.Fields.Item("U_YCF").Value = model.U_YCF;
             dts.UserFields.Fields.Item("U_CCF").Value = model.U_CCF;
             dts.UserFields.Fields.Item("U_THF").Value = model.U_THF;
+            dts.Comments = model.Comments;
             #region 行明细
             int lindex = 0;
             foreach (PurchaseAcctCode oact in model.PurchaseAcctCodeList)
