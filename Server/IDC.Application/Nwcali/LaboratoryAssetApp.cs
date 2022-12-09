@@ -103,16 +103,18 @@ namespace IDC.Application.Nwcali
                     result.Code = 500;
                     return result;
                 }
-                var objs = _unitWork.Find<LaboratoryAsset>(a => asset_number.Contains(a.AssetNumber)).ToList();
 
+                List<LaboratoryAsset> objs = _unitWork.Find<LaboratoryAsset>(a => asset_number.Contains(a.AssetNumber)).ToList();
                 var data = objs.Select(c => new {
                     asset_number = c.AssetNumber,
                     model = c.AssetStockNumber,
-                    asset_snapshot = c.AssetCalibrationCertificate,
+                    asset_AssetCalibrationCertificate = c.AssetCalibrationCertificate,                 
                     asset_type = GetAssetCategoryName(c.AssetCategory),
                     asset_type_text = c.AssetCategory,
+                    assetTCF = c.AssetTCF,
                     //asset_type_text = GetAssetCategoryName(c.AssetCategory),
-                    expiration_time = c.AssetEndDate
+                    expiration_time = c.AssetEndDate,
+                    asset_snapshot = GetFileContent(c.AssetTCF)
                 }).ToList();
 
                 result.Data = data;
@@ -127,6 +129,52 @@ namespace IDC.Application.Nwcali
 
         }
 
+        /// <summary>
+        /// 获取文本内容
+        /// </summary>
+        /// <param name="url">文件地址</param>
+        /// <returns>返回文本字符串内容</returns>
+        public string GetFileContent(string url)
+        {
+            string rXml = string.Empty;
+            try
+            {
+                //正则表达式验证当前链接是否为URL链接
+                string UrlFix = @"^(https?|ftp|file|ws)://([\w-]+\.)+[\w-]+(/[\w- ./?%&=]*)?$";
+                bool urlMatch = Regex.IsMatch(url, UrlFix);
+                if (urlMatch)
+                {
+                    HttpWebRequest myHttpWebRequest = System.Net.WebRequest.Create(url) as HttpWebRequest;
+                    myHttpWebRequest.KeepAlive = false;
+                    myHttpWebRequest.AllowAutoRedirect = false;
+                    myHttpWebRequest.UserAgent = "Mozilla/5.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 2.0.50727)";
+                    myHttpWebRequest.Timeout = 10000;
+                    myHttpWebRequest.ContentType = "application/x-www-form-urlencoded;charset=utf-8";
+                    using (HttpWebResponse res = (HttpWebResponse)myHttpWebRequest.GetResponse())
+                    {
+                        if (res.StatusCode == HttpStatusCode.OK || res.StatusCode == HttpStatusCode.PartialContent)//返回为200或206
+                        {
+                            string dd = res.ContentEncoding;
+                            System.IO.Stream strem = res.GetResponseStream();
+                            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+                            System.IO.StreamReader r = new System.IO.StreamReader(strem, Encoding.GetEncoding("GB2312"), true);
+                            rXml = r.ReadToEnd();
+                        }
+                    }
+                }
+                else
+                {
+                    rXml = "不是URL链接";
+                }
+               
+                return rXml;
+            }
+            catch(Exception ex)
+            {
+                return "解析错误：" + ex.Message.ToString();
+            }       
+        }
+     
         public string GetAssetCategoryName(string AssetCategory)
         {
             string str = string.Empty;
