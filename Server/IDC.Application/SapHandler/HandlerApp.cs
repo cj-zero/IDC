@@ -335,7 +335,7 @@ namespace IDC.Application.SapHandler
                 var oporObj = (await _repositoryBase.GetAsync<OPOR>(seloporsql)).FirstOrDefault();
                 buy_opor opor = oporObj.MapTo<buy_opor>();
                 #region 修改主数据
-                updateStr.AppendFormat($@"update buy_opor set U_YF='{opor.U_YF}',U_KDF='{opor.U_KDF}',U_BZF='{opor.U_BZF}',U_YCF='{opor.U_YCF}',U_CCF='{opor.U_CCF}',U_THF='{opor.U_THF}',DocTotal={opor.DocTotal} where DocEntry={docNum} and sbo_id={Define.Sbo_Id};");
+                updateStr.AppendFormat($@"update buy_opor set U_YF='{opor.U_YF}',U_KDF='{opor.U_KDF}',U_BZF='{opor.U_BZF}',U_YCF='{opor.U_YCF}',U_CCF='{opor.U_CCF}',U_THF='{opor.U_THF}',DocTotal={opor.DocTotal},Comments=@Comments where DocEntry={docNum} and sbo_id={Define.Sbo_Id};");
                 updateStr.AppendLine();
                 #endregion
                 #region 添加行数据
@@ -350,7 +350,7 @@ namespace IDC.Application.SapHandler
                 }
                 if (updateStr.Length > 0)
                 {
-                    await _repositoryBase.BatchAddAsync<buy_por1>(updateStr.ToString());
+                    await _repositoryBase.BatchAddAsync<buy_por1>(updateStr.ToString(),opor);
                 }
                 #endregion
             }
