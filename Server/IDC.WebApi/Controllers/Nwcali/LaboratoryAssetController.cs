@@ -120,7 +120,7 @@ namespace IDC.WebApi.Controllers.Nwcali
                     result.Code = 500;
                     return result;
                 }
-                await _app.Add(req);
+                result = await _app.Add(req);
             }
             catch (Exception ex)
             {

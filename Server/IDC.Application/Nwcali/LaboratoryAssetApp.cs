@@ -164,14 +164,14 @@ namespace IDC.Application.Nwcali
                 }
                 else
                 {
-                    rXml = "不是URL链接";
+                    rXml = "";
                 }
                
                 return rXml;
             }
             catch(Exception ex)
             {
-                return "解析错误：" + ex.Message.ToString();
+                return "";
             }       
         }
      
@@ -417,9 +417,17 @@ namespace IDC.Application.Nwcali
         /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>
-        public async Task Add(AddOrUpdateassetReq req)
+        public async Task<TableData> Add(AddOrUpdateassetReq req)
         {
+            var result = new TableData();
             //var obj1 = req.MapTo<Asset>();
+            if (_unitWork.Find<LaboratoryAsset>(a => a.AssetStockNumber == req.AssetStockNumber).Count() > 0)
+            {
+                result.Message = "出厂编号重复！";
+                result.Code = 500;
+                return result;
+            }
+            
             LaboratoryAsset obj = new LaboratoryAsset();
             obj.Id = req.Id > 0 ? (int)req.Id : 0;
             obj.Guid = req.Guid;
@@ -506,6 +514,8 @@ namespace IDC.Application.Nwcali
             eassetoperationReq.OperationUser = account?.realname;
             await _unitWork.AddAsync<LaboratoryAssetOperation>(eassetoperationReq);
             await _unitWork.SaveAsync();
+            return result;
+
         }
 
         /// <summary>
