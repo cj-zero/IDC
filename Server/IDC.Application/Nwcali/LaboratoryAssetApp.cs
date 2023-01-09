@@ -106,15 +106,15 @@ namespace IDC.Application.Nwcali
 
                 List<LaboratoryAsset> objs = _unitWork.Find<LaboratoryAsset>(a => asset_number.Contains(a.AssetNumber)).ToList();
                 var data = objs.Select(c => new {
-                    asset_number = c.AssetNumber,
-                    model = c.AssetStockNumber,
-                    asset_AssetCalibrationCertificate = c.AssetCalibrationCertificate,                 
-                    asset_type = GetAssetCategoryName(c.AssetCategory),
-                    asset_type_text = c.AssetCategory,
-                    assetTCF = c.AssetTCF,
+                    asset_number = c.AssetNumber,//资产编号
+                    model = c.AssetStockNumber,//sn
+                    asset_AssetCalibrationCertificate = c.AssetCalibrationCertificate,   //证书              
+                    asset_type = GetAssetCategoryName(c.AssetCategory),//类别
+                    asset_type_text = c.AssetCategory,//类别
+                    assetTCF = c.AssetTCF,//技术文件
                     //asset_type_text = GetAssetCategoryName(c.AssetCategory),
-                    expiration_time = c.AssetEndDate,
-                    asset_snapshot = GetFileContent(c.AssetTCF)
+                    expiration_time = c.AssetEndDate,//失效日期
+                    asset_snapshot = GetFileContent(c.AssetTCF)//文件文本信息
                 }).ToList();
 
                 result.Data = data;
@@ -565,6 +565,13 @@ namespace IDC.Application.Nwcali
             model.AssetImage = obj.AssetImage;
             model.AssetTCF = obj.AssetTCF;
             model.AssetInspectDataOne = obj.AssetInspectDataOne;
+
+
+            model.AssetType = obj.AssetType;
+            model.AssetStockNumber = obj.AssetStockNumber;
+            model.AssetCategory = obj.AssetCategory;
+            model.AssetFactory = obj.AssetFactory;
+
 
             _unitWork.Update(model);
             if (obj.laboratoryAssetCategory != null && obj.laboratoryAssetCategory.Count > 0)
